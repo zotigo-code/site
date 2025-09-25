@@ -1,9 +1,44 @@
+// Load tableData from localStorage or initialise with default values
+let tableData = JSON.parse(localStorage.getItem("tableData")) || Array.from({ length: 10 }, (_, i) => ({
+    loft: `Loft ${i + 1}`,
+    times: ["00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00"],
+    total: 0,
+    uraanKaTime: null,
+}));
+
+function updateTable() {
+    const tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = ""; // Clear the table body
+
+    tableData.forEach(row => {
+        const tr = document.createElement("tr");
+        const tdLoft = document.createElement("td");
+        tdLoft.textContent = row.loft;
+        tr.appendChild(tdLoft);
+
+        row.times.forEach(time => {
+            const tdTime = document.createElement("td");
+            tdTime.textContent = time;
+            tr.appendChild(tdTime);
+        });
+
+        const tdTotal = document.createElement("td");
+        tdTotal.textContent = row.times.filter(time => time !== "00:00:00").length;
+        tr.appendChild(tdTotal);
+
+        tableBody.appendChild(tr);
+    });
+}
+
+// Update the table on page load
+document.addEventListener("DOMContentLoaded", updateTable);
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loft Tracking Table</title>
+    <link rel="stylesheet" href="styles.css" />
     <style>
         table {
             border-collapse: collapse;
@@ -19,6 +54,11 @@
         .header-info {
             margin-bottom: 20px;
         }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -26,8 +66,6 @@
     <div class="header-info">
         <span>Total pigeons: <span id="totalPigeons">0</span></span> |
         <span>Non-zero cells: <span id="nonZeroCells">0</span></span>
-        <br />
-        <span id="uraanKaTimeHeader"></span>
     </div>
     <table id="mainTable">
         <thead>
@@ -44,63 +82,87 @@
             </tr>
         </thead>
         <tbody id="tableBody">
-            <!-- Rows will be generated dynamically -->
+            <!-- Rows will be dynamically populated -->
         </tbody>
     </table>
+    <div class="footer">
+        Last updated: <span id="lastUpdated">Never</span>
+    </div>
     <script>
-        let tableData = [
-            { loft: 'Loft 1', times: [0,0,0,0,0,0,0], total: 0, uraanKaTime: null },
-            { loft: 'Loft 2', times: [0,0,0,0,0,0,0], total: 0, uraanKaTime: null },
-            // Add more loft rows as needed
-        ];
+        // Load tableData from localStorage or initialise with default values
+        let tableData = [];
+
+        // Check if data exists in localStorage
+        const savedData = localStorage.getItem("tableData");
+        if (savedData) {
+            try {
+                tableData = JSON.parse(savedData);
+            } catch (error) {
+                console.error("Failed to parse tableData from localStorage:", error);
+                tableData = [];
+            }
+        }
+
+        // If no data exists, initialise with default values
+        if (!Array.isArray(tableData) || tableData.length === 0) {
+            tableData = Array.from({ length: 10 }, (_, i) => ({
+                loft: `Loft ${i + 1}`,
+                times: ["00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00"],
+                total: 0,
+                uraanKaTime: null,
+            }));
+        }
 
         function updateTable() {
             const tableBody = document.getElementById("tableBody");
             tableBody.innerHTML = ""; // Clear the table body
-            let totalPigeons = tableData.length * 7;
-            let nonZeroCells = 0;
-            let uraanTimes = tableData.map(row => row.uraanKaTime);
-            const allSameUraan = uraanTimes.every((val, _, arr) => val === arr[0] && val !== null);
 
-            for (const row of tableData) {
+            let totalPigeons = 0;
+            let nonZeroCells = 0;
+
+            tableData.forEach(row => {
                 const tr = document.createElement("tr");
+
+                // Loft Name
                 const tdLoft = document.createElement("td");
                 tdLoft.textContent = row.loft;
                 tr.appendChild(tdLoft);
 
-                let rowTotal = 0;
-                row.times.forEach((time, index) => {
+                // Times
+                row.times.forEach(time => {
                     const tdTime = document.createElement("td");
-                    tdTime.textContent = time || 0;
-                    if (time > 0) nonZeroCells++;
-                    rowTotal += time;
+                    tdTime.textContent = time;
                     tr.appendChild(tdTime);
+
+                    // Count non-zero cells
+                    if (time !== "00:00:00") {
+                        nonZeroCells++;
+                    }
                 });
 
+                // Total
                 const tdTotal = document.createElement("td");
-                tdTotal.textContent = rowTotal;
-                row.total = rowTotal;
+                tdTotal.textContent = row.times.filter(time => time !== "00:00:00").length;
                 tr.appendChild(tdTotal);
 
                 tableBody.appendChild(tr);
-            }
 
+                // Update total pigeons
+                totalPigeons += row.times.length;
+            });
+
+            // Update header info
             document.getElementById("totalPigeons").textContent = totalPigeons;
             document.getElementById("nonZeroCells").textContent = nonZeroCells;
 
-            const uraanHeader = document.getElementById("uraanKaTimeHeader");
-            if (allSameUraan) {
-                uraanHeader.textContent = `Uraan Ka Time: ${uraanTimes[0] || "N/A"}`;
-            } else {
-                uraanHeader.textContent = ""; // Reset header
-                const thUraan = document.createElement("th");
-                thUraan.textContent = "Uraan Ka Time";
-                document.querySelector("#mainTable thead tr").appendChild(thUraan);
-            }
+            // Update last updated timestamp
+            const lastUpdatedElement = document.getElementById("lastUpdated");
+            const now = new Date();
+            lastUpdatedElement.textContent = `${now.getDate()} ${now.toLocaleString('default', { month: 'long' })} ${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
         }
 
-        // Call the function to render the table
-        updateTable();
+        // Update the table on page load
+        document.addEventListener("DOMContentLoaded", updateTable);
     </script>
 </body>
 </html>
