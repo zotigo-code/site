@@ -28,6 +28,12 @@
     button:hover {
       background-color: #45a049;
     }
+    .confirmation-message {
+      color: green;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -54,12 +60,16 @@
       <input type="text" id="uraan-time" placeholder="HH:MM:SS" pattern="^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$" title="Time must be in HH:MM:SS format (24-hour)" required>
       <button type="button" id="apply-uraan-time">Apply</button>
     </form>
+    <div class="confirmation-message" id="confirmation-message">
+      Data saved successfully!
+    </div>
   </div>
   <script>
     const passwordInput = document.getElementById('admin-password');
     const setPasswordButton = document.getElementById('set-password');
     const formSection = document.getElementById('form-section');
     const loginSection = document.getElementById('login-section');
+    const confirmationMessage = document.getElementById('confirmation-message');
 
     let adminPassword = localStorage.getItem('adminPassword');
 
@@ -126,6 +136,12 @@
       rows.forEach(row => {
         if (row.cells[0].textContent === selectedLoft) {
           row.cells[parseInt(pigeonNumber)].textContent = timeValue;
+
+          // Show confirmation message
+          confirmationMessage.style.display = 'block';
+          setTimeout(() => {
+            confirmationMessage.style.display = 'none';
+          }, 2000);
         }
       });
     });
@@ -156,6 +172,13 @@
         }
         row.cells[8].textContent = new Date(total * 1000).toISOString().substr(11, 8);
       });
+
+      // Show confirmation message
+      confirmationMessage.textContent = 'Uraan Ka Time applied successfully!';
+      confirmationMessage.style.display = 'block';
+      setTimeout(() => {
+        confirmationMessage.style.display = 'none';
+      }, 2000);
     });
 
     // Function to validate time format
