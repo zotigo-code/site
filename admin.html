@@ -49,13 +49,18 @@
     </form>
 
     <script>
-        // Sample data for 10 lofts
-        let tableData = Array.from({ length: 10 }, (_, i) => ({
+        // Load tableData from localStorage or initialise with default values
+        let tableData = JSON.parse(localStorage.getItem("tableData")) || Array.from({ length: 10 }, (_, i) => ({
             loft: `Loft ${i + 1}`,
             times: ["00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00"],
             total: 0,
             uraanKaTime: null,
         }));
+
+        // Function to save tableData to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem("tableData", JSON.stringify(tableData));
+        }
 
         // Function to validate password before showing the form
         function validatePassword() {
@@ -142,6 +147,9 @@
 
                 alert(`Time saved for ${selectedLoft.loft}, Pigeon ${nextPigeonIndex + 1}`);
 
+                // Save the updated data to localStorage
+                saveToLocalStorage();
+
                 // Update the next pigeon number
                 updateNextPigeonNumber();
             } else {
@@ -161,15 +169,17 @@
             tableData.forEach(row => {
                 row.uraanKaTime = uraanTime;
 
-                // Calculate adjusted times (subtract uraan time)
+                // Adjust times (logic for subtraction can be added here)
                 row.times = row.times.map(time => {
                     if (time !== "00:00:00") {
-                        // Subtract the uraan time (logic for subtraction can be added here)
                         return time; // Placeholder: Keeping the same time for now
                     }
                     return time;
                 });
             });
+
+            // Save the updated data to localStorage
+            saveToLocalStorage();
 
             alert("Uraan Ka Time applied to all lofts.");
         }
