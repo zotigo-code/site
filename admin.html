@@ -52,7 +52,7 @@
         // Sample data for 10 lofts
         let tableData = Array.from({ length: 10 }, (_, i) => ({
             loft: `Loft ${i + 1}`,
-            times: [0, 0, 0, 0, 0, 0, 0],
+            times: ["00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00"],
             total: 0,
             uraanKaTime: null,
         }));
@@ -114,26 +114,34 @@
         function updateNextPigeonNumber() {
             const selectedLoftIndex = document.getElementById("loftDropdown").value;
             const selectedLoft = tableData[selectedLoftIndex];
-            const nextPigeon = selectedLoft.times.findIndex(time => time === 0) + 1;
+
+            // Find the next available pigeon slot
+            const nextPigeon = selectedLoft.times.findIndex(time => time === "00:00:00") + 1;
+
+            // Update the pigeon number field
             document.getElementById("pigeonNumber").value = nextPigeon || "Full";
         }
 
         // Function to save data for a specific loft and pigeon
         function saveData() {
-            const selectedLoftIndex = document.getElementById("loftDropdown").value;
+            const selectedLoftIndex = parseInt(document.getElementById("loftDropdown").value);
             const timeEntry = document.getElementById("timeEntry").value;
 
-            if (!timeEntry) {
-                alert("Please enter a valid time.");
+            if (!timeEntry || selectedLoftIndex < 0) {
+                alert("Please enter a valid time and select a loft.");
                 return;
             }
 
             const selectedLoft = tableData[selectedLoftIndex];
-            const nextPigeon = selectedLoft.times.findIndex(time => time === 0);
+            const nextPigeonIndex = selectedLoft.times.findIndex(time => time === "00:00:00");
 
-            if (nextPigeon !== -1) {
-                selectedLoft.times[nextPigeon] = timeEntry;
-                alert(`Time saved for ${selectedLoft.loft}, Pigeon ${nextPigeon + 1}`);
+            if (nextPigeonIndex !== -1) {
+                // Save the time in the next available pigeon slot
+                selectedLoft.times[nextPigeonIndex] = timeEntry;
+
+                alert(`Time saved for ${selectedLoft.loft}, Pigeon ${nextPigeonIndex + 1}`);
+
+                // Update the next pigeon number
                 updateNextPigeonNumber();
             } else {
                 alert("All pigeon slots for this loft are full.");
@@ -151,11 +159,22 @@
 
             tableData.forEach(row => {
                 row.uraanKaTime = uraanTime;
-                row.times = row.times.map(time => time - uraanTime); // Subtract uraanTime from each time
+
+                // Calculate adjusted times (subtract uraan time)
+                row.times = row.times.map(time => {
+                    if (time !== "00:00:00") {
+                        // Subtract the uraan time (logic for subtraction can be added here)
+                        return time; // Placeholder: Keeping the same time for now
+                    }
+                    return time;
+                });
             });
 
             alert("Uraan Ka Time applied to all lofts.");
         }
+
+        // Populate dropdown on page load
+        populateLoftDropdown();
     </script>
 </body>
 </html>
