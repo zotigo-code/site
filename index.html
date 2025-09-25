@@ -1,162 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loft Tracking Table</title>
-    <link rel="stylesheet" href="styles.css" />
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
+// Load tableData from localStorage or initialise with default values
+let tableData = JSON.parse(localStorage.getItem("tableData")) || Array.from({ length: 10 }, (_, i) => ({
+    loft: `Loft ${i + 1}`,
+    times: ["00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00"],
+    total: 0,
+    uraanKaTime: null,
+}));
 
-        table, th, td {
-            border: 1px solid black;
-        }
+function updateTable() {
+    const tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = ""; // Clear the table body
 
-        th, td {
-            padding: 8px;
-            text-align: center;
-        }
+    tableData.forEach(row => {
+        const tr = document.createElement("tr");
+        const tdLoft = document.createElement("td");
+        tdLoft.textContent = row.loft;
+        tr.appendChild(tdLoft);
 
-        .header-info {
-            margin-bottom: 20px;
-        }
+        row.times.forEach(time => {
+            const tdTime = document.createElement("td");
+            tdTime.textContent = time;
+            tr.appendChild(tdTime);
+        });
 
-        .footer {
-            margin-top: 20px;
-            font-size: 0.9em;
-            text-align: left;
-        }
+        const tdTotal = document.createElement("td");
+        tdTotal.textContent = row.times.filter(time => time !== "00:00:00").length;
+        tr.appendChild(tdTotal);
 
-        /* Blinking Effect */
-        @keyframes blink {
-            0% { background-color: lightgreen; }
-            50% { background-color: white; }
-            100% { background-color: lightgreen; }
-        }
+        tableBody.appendChild(tr);
+    });
+}
 
-        .blinking {
-            animation: blink 1s infinite;
-        }
-    </style>
-</head>
-<body>
-    <h1>Loft Tracking Table</h1>
-    <div class="header-info">
-        <span>Total pigeons: <span id="totalPigeons">0</span></span> |
-        <span>Non-zero cells: <span id="nonZeroCells">0</span></span>
-        <br />
-        <span id="uraanKaTimeHeader"></span>
-    </div>
-    <table id="mainTable">
-        <thead>
-            <tr>
-                <th>Loft</th>
-                <th>Time 1</th>
-                <th>Time 2</th>
-                <th>Time 3</th>
-                <th>Time 4</th>
-                <th>Time 5</th>
-                <th>Time 6</th>
-                <th>Time 7</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <!-- Rows will be dynamically populated -->
-        </tbody>
-    </table>
-    <div class="footer">
-        Last updated: <span id="lastUpdated">Never</span>
-    </div>
-    <script>
-        let tableData = Array.from({ length: 10 }, (_, i) => ({
-            loft: `Loft ${i + 1}`,
-            times: ["00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00"],
-            total: 0,
-            uraanKaTime: null,
-        }));
-
-        let lastUpdatedCell = null; // To track the last updated cell
-
-        function updateTable() {
-            const tableBody = document.getElementById("tableBody");
-            tableBody.innerHTML = ""; // Clear the table body
-            let totalPigeons = tableData.length * 7;
-            let nonZeroCells = 0;
-            let uraanTimes = tableData.map(row => row.uraanKaTime);
-            const allSameUraan = uraanTimes.every((val, _, arr) => val === arr[0] && val !== null);
-
-            for (const [rowIndex, row] of tableData.entries()) {
-                const tr = document.createElement("tr");
-                const tdLoft = document.createElement("td");
-                tdLoft.textContent = row.loft;
-                tr.appendChild(tdLoft);
-
-                let rowTotal = 0;
-                row.times.forEach((time, colIndex) => {
-                    const tdTime = document.createElement("td");
-                    tdTime.textContent = time || "00:00:00";
-                    if (time !== "00:00:00") nonZeroCells++;
-                    rowTotal += time !== "00:00:00" ? 1 : 0; // Increment total for valid times
-
-                    // Highlight the last updated cell
-                    if (lastUpdatedCell && lastUpdatedCell.row === rowIndex && lastUpdatedCell.col === colIndex) {
-                        tdTime.classList.add("blinking");
-                    }
-
-                    tr.appendChild(tdTime);
-                });
-
-                const tdTotal = document.createElement("td");
-                tdTotal.textContent = rowTotal;
-                row.total = rowTotal;
-                tr.appendChild(tdTotal);
-
-                tableBody.appendChild(tr);
-            }
-
-            document.getElementById("totalPigeons").textContent = totalPigeons;
-            document.getElementById("nonZeroCells").textContent = nonZeroCells;
-
-            const uraanHeader = document.getElementById("uraanKaTimeHeader");
-            if (allSameUraan) {
-                uraanHeader.textContent = `Uraan Ka Time: ${uraanTimes[0] || "N/A"}`;
-            } else {
-                uraanHeader.textContent = ""; // Reset header
-            }
-
-            updateLastUpdated();
-        }
-
-        function updateLastUpdated() {
-            const lastUpdatedElement = document.getElementById("lastUpdated");
-            const now = new Date();
-            const formattedDate = `${now.getDate()} ${now.toLocaleString('default', { month: 'long' })} ${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-            lastUpdatedElement.textContent = formattedDate;
-        }
-
-        function saveData(loftIndex, pigeonIndex, time) {
-            if (loftIndex < 0 || pigeonIndex < 0 || !time) return;
-
-            // Save the time to the relevant loft and pigeon
-            tableData[loftIndex].times[pigeonIndex] = time;
-
-            // Update the lastUpdatedCell tracker
-            lastUpdatedCell = { row: loftIndex, col: pigeonIndex };
-
-            // Update the table
-            updateTable();
-        }
-
-        // Simulate a data update
-        setTimeout(() => {
-            saveData(0, 2, "12:34:56"); // Update Loft 1, Time 3
-        }, 3000);
-
-        updateTable();
-    </script>
-</body>
-</html>
+// Update the table on page load
+document.addEventListener("DOMContentLoaded", updateTable);
