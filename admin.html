@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <!-- Editable Heading Section -->
+    <div id="editableHeading">
+        <input type="text" id="headingInput" placeholder="Enter heading for the page" />
+        <button type="button" onclick="saveHeading()">Save</button>
+    </div>
+    <h1 id="pageHeading" onclick="editHeading()">Set the page heading</h1>
+    
+    <!-- Admin Panel Form -->
+    <form id="adminForm">
+        <label for="password">Set Password:</label>
+        <input type="password" id="password" required />
+
+        <label for="loftDropdown">Loft:</label>
+        <select id="loftDropdown">
+            <!-- Options will be dynamically populated -->
+        </select>
+
+        <label for="pigeonNumber">Next Pigeon Number:</label>
+        <input type="text" id="pigeonNumber" disabled />
+
+        <label for="timeEntry">Time (HH:MM:SS):</label>
+        <input type="time" id="timeEntry" step="1" required />
+
+        <button type="button" onclick="saveData()">Save</button>
+
+        <hr />
+
+        <label for="uraanTime">Uraan Ka Time:</label>
+        <input type="time" id="uraanTime" step="1" />
+        <button type="button" onclick="applyUraanTime()">Apply to All</button>
+    </form>
+
+    <script src="admin.js"></script>
+</body>
+</html>

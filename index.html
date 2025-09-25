@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loft Tracking Table</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <h1>Loft Tracking Table</h1>
+    <div class="header-info">
+        <span>Total pigeons: <span id="totalPigeons">0</span></span> |
+        <span>Non-zero cells: <span id="nonZeroCells">0</span></span>
+        <br />
+        <span id="uraanKaTimeHeader"></span>
+    </div>
+    <table id="mainTable">
+        <thead>
+            <tr>
+                <th>Loft</th>
+                <th>Time 1</th>
+                <th>Time 2</th>
+                <th>Time 3</th>
+                <th>Time 4</th>
+                <th>Time 5</th>
+                <th>Time 6</th>
+                <th>Time 7</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Rows will be dynamically populated -->
+        </tbody>
+    </table>
+    <div class="footer">
+        Last updated: <span id="lastUpdated">Never</span>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

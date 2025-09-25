@@ -1,0 +1,57 @@
+/* Shared styles for both pages */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    padding: 8px;
+    text-align: center;
+}
+
+.header-info {
+    margin-bottom: 20px;
+}
+
+.footer {
+    margin-top: 20px;
+    font-size: 0.9em;
+    text-align: left;
+}
+
+/* Editable Heading Section */
+#pageHeading {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+#editableHeading {
+    display: none;
+}
+
+#editableHeading input {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+/* Blinking Effect */
+@keyframes blink {
+    0% { background-color: lightgreen; }
+    50% { background-color: white; }
+    100% { background-color: lightgreen; }
+}
+
+.blinking {
+    animation: blink 1s infinite;
+}
