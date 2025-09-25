@@ -1,110 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <style>
-        form {
-            margin: 20px;
-        }
-        label, select, input {
-            display: block;
-            margin: 10px 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Page</title>
+  <style>
+    form {
+      max-width: 400px;
+      margin: 20px auto;
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      margin: 10px 0 5px;
+    }
+    input, select, button {
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Admin Panel</h1>
-    <form id="adminForm">
-        <label for="password">Set Password:</label>
-        <input type="password" id="password" required />
-
-        <label for="loftDropdown">Loft:</label>
-        <select id="loftDropdown">
-            <!-- Options will be populated dynamically -->
-        </select>
-
-        <label for="pigeonNumber">Next Pigeon Number:</label>
-        <input type="text" id="pigeonNumber" disabled />
-
-        <label for="timeEntry">Time (HH:MM:SS):</label>
-        <input type="time" id="timeEntry" step="1" required />
-
-        <button type="button" onclick="saveData()">Save</button>
-
-        <hr />
-
-        <label for="uraanTime">Uraan Ka Time:</label>
-        <input type="time" id="uraanTime" step="1" />
-        <button type="button" onclick="applyUraanTime()">Apply to All</button>
+  <h1>Admin Page</h1>
+  <div id="login-section">
+    <label for="admin-password">Set Admin Password:</label>
+    <input type="password" id="admin-password">
+    <button id="set-password">Set Password</button>
+  </div>
+  <div id="form-section" style="display: none;">
+    <form id="data-entry-form">
+      <label for="loft">Loft:</label>
+      <select id="loft"></select>
+      
+      <label for="pigeon-number">Pigeon Number:</label>
+      <input type="number" id="pigeon-number" readonly>
+      
+      <label for="time">Time (HH:MM:SS):</label>
+      <input type="time" id="time" step="1">
+      
+      <button type="button" id="save-button">Save</button>
+      
+      <label for="uraan-time">Uraan Ka Time (HH:MM:SS):</label>
+      <input type="time" id="uraan-time" step="1">
+      <button type="button" id="apply-uraan-time">Apply</button>
     </form>
+  </div>
+  <script>
+    const passwordInput = document.getElementById('admin-password');
+    const setPasswordButton = document.getElementById('set-password');
+    const formSection = document.getElementById('form-section');
+    const loginSection = document.getElementById('login-section');
 
-    <script>
-        let tableData = [
-            { loft: 'Loft 1', times: [0,0,0,0,0,0,0], total: 0, uraanKaTime: null },
-            { loft: 'Loft 2', times: [0,0,0,0,0,0,0], total: 0, uraanKaTime: null },
-            // Add more loft rows as needed
-        ];
+    let adminPassword = localStorage.getItem('adminPassword');
 
-        function populateLoftDropdown() {
-            const dropdown = document.getElementById("loftDropdown");
-            dropdown.innerHTML = ""; // Reset dropdown
-            tableData.forEach((row, index) => {
-                const option = document.createElement("option");
-                option.value = index;
-                option.textContent = row.loft;
-                dropdown.appendChild(option);
-            });
+    if (adminPassword) {
+      loginSection.style.display = 'none';
+      formSection.style.display = 'block';
+    }
 
-            updateNextPigeonNumber();
-        }
+    setPasswordButton.addEventListener('click', () => {
+      adminPassword = passwordInput.value;
+      localStorage.setItem('adminPassword', adminPassword);
+      loginSection.style.display = 'none';
+      formSection.style.display = 'block';
+    });
 
-        function updateNextPigeonNumber() {
-            const selectedLoftIndex = document.getElementById("loftDropdown").value;
-            const selectedLoft = tableData[selectedLoftIndex];
-            const nextPigeon = selectedLoft.times.findIndex(time => time === 0) + 1;
-            document.getElementById("pigeonNumber").value = nextPigeon || "Full";
-        }
+    const loftSelect = document.getElementById('loft');
+    const pigeonNumberInput = document.getElementById('pigeon-number');
+    const timeInput = document.getElementById('time');
+    const saveButton = document.getElementById('save-button');
+    const uraanTimeInput = document.getElementById('uraan-time');
+    const applyUraanButton = document.getElementById('apply-uraan-time');
 
-        function saveData() {
-            const selectedLoftIndex = document.getElementById("loftDropdown").value;
-            const timeEntry = document.getElementById("timeEntry").value;
+    // Populate dropdown with Loft options
+    for (let i = 1; i <= 10; i++) {
+      const option = document.createElement('option');
+      option.value = `Loft ${i}`;
+      option.textContent = `Loft ${i}`;
+      loftSelect.appendChild(option);
+    }
 
-            if (!timeEntry) {
-                alert("Please enter a valid time.");
-                return;
+    // Dynamically update pigeon number based on selected loft
+    loftSelect.addEventListener('change', () => {
+      const selectedLoft = loftSelect.value;
+      const table = window.opener.document.querySelector('#main-table');
+      const rows = table.querySelectorAll('tbody tr');
+      let nextPigeon = 1;
+      rows.forEach(row => {
+        if (row.cells[0].textContent === selectedLoft) {
+          for (let i = 1; i <= 7; i++) {
+            if (!row.cells[i].textContent) {
+              nextPigeon = i;
+              break;
             }
-
-            const selectedLoft = tableData[selectedLoftIndex];
-            const nextPigeon = selectedLoft.times.findIndex(time => time === 0);
-
-            if (nextPigeon !== -1) {
-                selectedLoft.times[nextPigeon] = timeEntry;
-                alert(`Time saved for ${selectedLoft.loft}, Pigeon ${nextPigeon + 1}`);
-            } else {
-                alert("All pigeon slots for this loft are full.");
-            }
+          }
         }
+      });
+      pigeonNumberInput.value = nextPigeon;
+    });
 
-        function applyUraanTime() {
-            const uraanTime = document.getElementById("uraanTime").value;
+    saveButton.addEventListener('click', () => {
+      const selectedLoft = loftSelect.value;
+      const pigeonNumber = pigeonNumberInput.value;
+      const timeValue = timeInput.value;
 
-            if (!uraanTime) {
-                alert("Please enter a valid Uraan Ka Time.");
-                return;
-            }
-
-            tableData.forEach(row => {
-                row.uraanKaTime = uraanTime;
-                row.times = row.times.map(time => time - uraanTime); // Subtract uraanTime from each time
-            });
-
-            alert("Uraan Ka Time applied to all lofts.");
+      const table = window.opener.document.querySelector('#main-table');
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        if (row.cells[0].textContent === selectedLoft) {
+          row.cells[parseInt(pigeonNumber)].textContent = timeValue;
         }
+      });
+    });
 
-        // Populate dropdown on page load
-        populateLoftDropdown();
-    </script>
+    applyUraanButton.addEventListener('click', () => {
+      const uraanTime = uraanTimeInput.value;
+
+      const table = window.opener.document.querySelector('#main-table');
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        let total = 0;
+        for (let i = 1; i <= 7; i++) {
+          const cellValue = row.cells[i].textContent;
+          if (cellValue) {
+            const [h1, m1, s1] = cellValue.split(':').map(Number);
+            const [h2, m2, s2] = uraanTime.split(':').map(Number);
+            const timeInSeconds = (h1 * 3600 + m1 * 60 + s1) - (h2 * 3600 + m2 * 60 + s2);
+            row.cells[i].textContent = new Date(timeInSeconds * 1000).toISOString().substr(11, 8);
+            total += timeInSeconds;
+          }
+        }
+        row.cells[8].textContent = new Date(total * 1000).toISOString().substr(11, 8);
+      });
+    });
+  </script>
 </body>
 </html>
