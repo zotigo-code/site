@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+        #adminForm {
+            display: none; /* Hide the form until the correct password is entered */
+        }
+    </style>
 </head>
 <body>
     <!-- Editable Heading Section -->
@@ -14,14 +19,18 @@
     </div>
     <h1 id="pageHeading" onclick="editHeading()">Set the page heading</h1>
     
+    <!-- Password Prompt -->
+    <div id="passwordPrompt">
+        <label for="password">Enter Password:</label>
+        <input type="password" id="password" required />
+        <button type="button" onclick="validatePassword()">Submit</button>
+    </div>
+
     <!-- Admin Panel Form -->
     <form id="adminForm">
-        <label for="password">Set Password:</label>
-        <input type="password" id="password" required />
-
         <label for="loftDropdown">Loft:</label>
         <select id="loftDropdown">
-            <!-- Options will be dynamically populated -->
+            <!-- Dropdown options will be dynamically populated -->
         </select>
 
         <label for="pigeonNumber">Next Pigeon Number:</label>
@@ -39,6 +48,114 @@
         <button type="button" onclick="applyUraanTime()">Apply to All</button>
     </form>
 
-    <script src="admin.js"></script>
+    <script>
+        // Sample data for 10 lofts
+        let tableData = Array.from({ length: 10 }, (_, i) => ({
+            loft: `Loft ${i + 1}`,
+            times: [0, 0, 0, 0, 0, 0, 0],
+            total: 0,
+            uraanKaTime: null,
+        }));
+
+        // Function to validate password before showing the form
+        function validatePassword() {
+            const passwordInput = document.getElementById("password");
+            const adminForm = document.getElementById("adminForm");
+            const passwordPrompt = document.getElementById("passwordPrompt");
+
+            const correctPassword = "admin123"; // Replace with your desired password
+
+            if (passwordInput.value === correctPassword) {
+                passwordPrompt.style.display = "none"; // Hide the password prompt
+                adminForm.style.display = "block"; // Show the admin form
+                populateLoftDropdown(); // Populate the Loft dropdown
+            } else {
+                alert("Incorrect password. Please try again.");
+            }
+        }
+
+        // Function to enable editing of the heading
+        function editHeading() {
+            const headingDisplay = document.getElementById("pageHeading");
+            const headingEdit = document.getElementById("editableHeading");
+            const headingInput = document.getElementById("headingInput");
+
+            headingInput.value = headingDisplay.textContent;
+            headingDisplay.style.display = "none";
+            headingEdit.style.display = "block";
+        }
+
+        // Function to save and display the heading
+        function saveHeading() {
+            const headingDisplay = document.getElementById("pageHeading");
+            const headingEdit = document.getElementById("editableHeading");
+            const headingInput = document.getElementById("headingInput");
+
+            headingDisplay.textContent = headingInput.value || "Set the page heading";
+            headingDisplay.style.display = "block";
+            headingEdit.style.display = "none";
+        }
+
+        // Function to populate the Loft dropdown menu
+        function populateLoftDropdown() {
+            const dropdown = document.getElementById("loftDropdown");
+            dropdown.innerHTML = ""; // Reset dropdown
+            tableData.forEach((row, index) => {
+                const option = document.createElement("option");
+                option.value = index;
+                option.textContent = row.loft;
+                dropdown.appendChild(option);
+            });
+
+            updateNextPigeonNumber();
+        }
+
+        // Function to update the next pigeon number for the selected loft
+        function updateNextPigeonNumber() {
+            const selectedLoftIndex = document.getElementById("loftDropdown").value;
+            const selectedLoft = tableData[selectedLoftIndex];
+            const nextPigeon = selectedLoft.times.findIndex(time => time === 0) + 1;
+            document.getElementById("pigeonNumber").value = nextPigeon || "Full";
+        }
+
+        // Function to save data for a specific loft and pigeon
+        function saveData() {
+            const selectedLoftIndex = document.getElementById("loftDropdown").value;
+            const timeEntry = document.getElementById("timeEntry").value;
+
+            if (!timeEntry) {
+                alert("Please enter a valid time.");
+                return;
+            }
+
+            const selectedLoft = tableData[selectedLoftIndex];
+            const nextPigeon = selectedLoft.times.findIndex(time => time === 0);
+
+            if (nextPigeon !== -1) {
+                selectedLoft.times[nextPigeon] = timeEntry;
+                alert(`Time saved for ${selectedLoft.loft}, Pigeon ${nextPigeon + 1}`);
+                updateNextPigeonNumber();
+            } else {
+                alert("All pigeon slots for this loft are full.");
+            }
+        }
+
+        // Function to apply "Uraan Ka Time" to all lofts
+        function applyUraanTime() {
+            const uraanTime = document.getElementById("uraanTime").value;
+
+            if (!uraanTime) {
+                alert("Please enter a valid Uraan Ka Time.");
+                return;
+            }
+
+            tableData.forEach(row => {
+                row.uraanKaTime = uraanTime;
+                row.times = row.times.map(time => time - uraanTime); // Subtract uraanTime from each time
+            });
+
+            alert("Uraan Ka Time applied to all lofts.");
+        }
+    </script>
 </body>
 </html>
