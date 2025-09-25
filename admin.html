@@ -116,10 +116,11 @@
             const selectedLoft = tableData[selectedLoftIndex];
 
             // Find the next available pigeon slot
-            const nextPigeon = selectedLoft.times.findIndex(time => time === "00:00:00") + 1;
+            const nextPigeonIndex = selectedLoft.times.findIndex(time => time === "00:00:00");
+            const nextPigeon = nextPigeonIndex !== -1 ? nextPigeonIndex + 1 : "Full";
 
             // Update the pigeon number field
-            document.getElementById("pigeonNumber").value = nextPigeon || "Full";
+            document.getElementById("pigeonNumber").value = nextPigeon;
         }
 
         // Function to save data for a specific loft and pigeon
@@ -174,7 +175,7 @@
         }
 
         // Populate dropdown on page load
-        populateLoftDropdown();
+        document.addEventListener("DOMContentLoaded", populateLoftDropdown);
     </script>
 </body>
 </html>
