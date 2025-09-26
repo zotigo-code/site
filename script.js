@@ -15,11 +15,16 @@ if (document.getElementById("loginSection")) {
   // Populate Loft Dropdown
   loftSelect.innerHTML = Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">Loft ${i + 1}</option>`).join("");
 
+  // Update Pigeon Number when Loft is selected
   loftSelect.addEventListener("change", () => {
-    const loftIndex = loftSelect.value - 1;
-    const nextEmpty = loftData[loftIndex].findIndex(value => value === "") + 1;
-    pigeonNumber.value = nextEmpty || "Full";
+    updatePigeonNumber();
   });
+
+  function updatePigeonNumber() {
+    const loftIndex = loftSelect.value - 1;
+    const nextEmpty = loftData[loftIndex].findIndex(value => value === "");
+    pigeonNumber.value = nextEmpty >= 0 ? nextEmpty + 1 : "Full";
+  }
 
   document.getElementById("setPasswordBtn").addEventListener("click", () => {
     adminPassword = document.getElementById("adminPassword").value;
@@ -39,10 +44,12 @@ if (document.getElementById("loginSection")) {
   document.getElementById("saveBtn").addEventListener("click", () => {
     const loftIndex = loftSelect.value - 1;
     const pigeonIdx = pigeonNumber.value - 1;
-    if (pigeonIdx >= 0 && pigeonIdx < 7) {
+
+    if (pigeonIdx >= 0 && pigeonIdx < 7 && loftData[loftIndex][pigeonIdx] === "") {
       loftData[loftIndex][pigeonIdx] = timeInput.value;
       updateMainTable();
       alert(`Time saved for Loft ${loftSelect.value}, Pigeon ${pigeonNumber.value}.`);
+      updatePigeonNumber(); // Update the next empty slot after saving
     } else {
       alert("Unable to save. All slots are full or invalid input.");
     }
