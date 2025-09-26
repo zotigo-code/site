@@ -207,16 +207,23 @@
 
       // Save time
       document.getElementById("saveBtn").addEventListener("click", () => {
-        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        const rowIdx = document.getElementById("nameSelect").value;
-        const pigeonIdx = document.getElementById("pigeonNumber").value;
-        const time = document.getElementById("timeInput").value;
-        if (!/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(time)) return alert("Invalid format. Use HH:MM:SS");
-        rows[rowIdx].times[pigeonIdx] = time;
-        localStorage.setItem("tournamentRows", JSON.stringify(rows));
-        alert("Time saved!");
-        updatePigeonDropdown(rowIdx);
-      });
+      const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
+      const rowIdx = document.getElementById("nameSelect").value;
+      const pigeonIdx = document.getElementById("pigeonNumber").value;
+      const timeInput = document.getElementById("timeInput");
+     const time = timeInput.value;
+
+    if (!/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(time)) 
+     return alert("Invalid format. Use HH:MM:SS");
+
+    rows[rowIdx].times[pigeonIdx] = time;
+    localStorage.setItem("tournamentRows", JSON.stringify(rows));
+
+    alert("Time saved!");
+     timeInput.value = "";  // ✅ Clear the field
+    updatePigeonDropdown(rowIdx);
+ });
+
 
       // Initial load
       renderNameDropdown();
