@@ -1,7 +1,7 @@
 // Shared State
 const mainTable = document.getElementById("mainTable")?.getElementsByTagName("tbody")[0];
 let adminPassword = localStorage.getItem("adminPassword") || "";
-let loftData = Array(10).fill(null).map(() => Array(7).fill("")); // 10 lofts, each with 7 slots
+let loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill("")); // Load from localStorage or initialise empty data
 
 // Admin Page Script
 if (document.getElementById("loginSection")) {
@@ -59,7 +59,7 @@ if (document.getElementById("loginSection")) {
 
     // Save the time in the correct slot
     loftData[loftIndex][pigeonIdx] = timeInput.value;
-    updateMainTable();
+    saveLoftData();
     alert(`Time saved for Loft ${loftSelect.value}, Pigeon ${pigeonNumber.value}.`);
     updatePigeonNumber(); // Update the next empty slot after saving
   });
@@ -77,7 +77,7 @@ if (document.getElementById("loginSection")) {
     loftData = loftData.map(row =>
       row.map(time => time ? subtractTime(parseTime(time), uraanTime) : time)
     );
-    updateMainTable();
+    saveLoftData();
     alert("Uraan Ka Time applied to all rows.");
   });
 
@@ -98,6 +98,12 @@ if (document.getElementById("loginSection")) {
     const ss = total % 60;
     return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
   }
+
+  // Save loft data to localStorage
+  function saveLoftData() {
+    localStorage.setItem("loftData", JSON.stringify(loftData));
+    updateMainTable(); // Ensure the main table is updated in real time
+  }
 }
 
 // Main Table Update
@@ -112,9 +118,6 @@ function updateMainTable() {
       }
       row.cells[8].textContent = totalSeconds ? formatSeconds(totalSeconds) : "";
     });
-
-    // Save data to localStorage so the main table persists
-    localStorage.setItem("loftData", JSON.stringify(loftData));
   }
 }
 
