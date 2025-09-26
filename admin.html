@@ -65,14 +65,25 @@
       <button type="button" id="applyUraanTimeBtn">Apply</button>
     </form>
 
-    <!-- Add Row -->
+    <!-- Add Row (Name Only) -->
     <form id="addRowForm">
       <label for="rowName">Name:</label>
       <input type="text" id="rowName" placeholder="Enter name">
-
-      <div id="pigeonInputs"></div>
-
       <button type="button" id="addRowBtn">Add Row</button>
+    </form>
+
+    <!-- Time Registration -->
+    <form id="dataForm">
+      <label for="nameSelect">Name:</label>
+      <select id="nameSelect"></select>
+
+      <label for="pigeonNumber">Pigeon Number:</label>
+      <select id="pigeonNumber"></select>
+
+      <label for="timeInput">Time (HH:MM:SS):</label>
+      <input type="text" id="timeInput" placeholder="HHMMSS">
+
+      <button type="button" id="saveBtn">Save</button>
     </form>
   </div>
 
@@ -104,25 +115,9 @@
       localStorage.setItem("tableHistory", JSON.stringify(archive));
     }
 
-    function renderPigeonInputs() {
-      const config = JSON.parse(localStorage.getItem("tournamentConfig"));
-      const div = document.getElementById("pigeonInputs");
-      div.innerHTML="";
-      if (!config) {
-        div.innerHTML="<em>Please create a tournament first.</em>";
-        return;
-      }
-      for (let i=1;i<=config.pigeons;i++) {
-        const input=document.createElement("input");
-        input.placeholder=`Pigeon ${i} Time`;
-        input.id=`pigeon_${i}`;
-        autoFormatTime(input);
-        div.appendChild(input);
-      }
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
       autoFormatTime(document.getElementById("uraanTime"));
+      autoFormatTime(document.getElementById("timeInput"));
 
       // Tournament create
       document.getElementById("createTournamentBtn").addEventListener("click", () => {
@@ -131,9 +126,7 @@
         localStorage.setItem("tournamentConfig", JSON.stringify({ pigeons }));
         localStorage.setItem("tournamentRows", JSON.stringify([]));
         alert(`New tournament created with ${pigeons} pigeons.`);
-
-        // Re-render pigeon inputs immediately (no reload required)
-        renderPigeonInputs();
+        renderNameDropdown();
       });
 
       // Page heading
@@ -168,23 +161,60 @@
         alert("Sab Lofts Ka Uraan Ka Time set");
       });
 
-      // Add row
+      // Add row (Name only)
       document.getElementById("addRowBtn").addEventListener("click", () => {
         const config = JSON.parse(localStorage.getItem("tournamentConfig"));
         if (!config) return alert("No tournament created yet.");
         const name = document.getElementById("rowName").value;
-        const times=[];
-        for(let i=1;i<=config.pigeons;i++){
-          times.push(document.getElementById(`pigeon_${i}`).value);
-        }
+        if (!name) return alert("Please enter a name.");
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        rows.push({name, times});
+        rows.push({ name, times: Array(config.pigeons).fill("") });
         localStorage.setItem("tournamentRows", JSON.stringify(rows));
         alert("Row added");
+        renderNameDropdown();
       });
 
-      // Initial render
-      renderPigeonInputs();
+      // Populate name dropdown
+      function renderNameDropdown() {
+        const nameSelect = document.getElementById("nameSelect");
+        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
+        nameSelect.innerHTML = "";
+        rows.forEach((r, idx) => {
+          nameSelect.add(new Option(r.name, idx));
+        });
+        if (rows.length > 0) updatePigeonDropdown(0);
+      }
+
+      function updatePigeonDropdown(rowIndex) {
+        const config = JSON.parse(localStorage.getItem("tournamentConfig"));
+        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
+        const pigeonDropdown = document.getElementById("pigeonNumber");
+        pigeonDropdown.innerHTML = "";
+        if (!config || !rows[rowIndex]) return;
+        rows[rowIndex].times.forEach((t, i) => {
+          pigeonDropdown.add(new Option(t ? `Pigeon ${i+1} (Filled)` : `Pigeon ${i+1}`, i));
+        });
+      }
+
+      document.getElementById("nameSelect").addEventListener("change", (e) => {
+        updatePigeonDropdown(e.target.value);
+      });
+
+      // Save time
+      document.getElementById("saveBtn").addEventListener("click", () => {
+        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
+        const rowIdx = document.getElementById("nameSelect").value;
+        const pigeonIdx = document.getElementById("pigeonNumber").value;
+        const time = document.getElementById("timeInput").value;
+        if (!/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(time)) return alert("Invalid format. Use HH:MM:SS");
+        rows[rowIdx].times[pigeonIdx] = time;
+        localStorage.setItem("tournamentRows", JSON.stringify(rows));
+        alert("Time saved!");
+        updatePigeonDropdown(rowIdx);
+      });
+
+      // Initial load
+      renderNameDropdown();
     });
 
     // Login
