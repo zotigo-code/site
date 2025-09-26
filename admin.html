@@ -74,17 +74,20 @@
       <button type="button" id="setPageHeadingBtn">Set Heading</button>
     </form>
 
+    <!-- Image Upload Form -->
+    <form id="imageForm">
+      <label for="imageUpload">Top Image:</label>
+      <input type="file" id="imageUpload" accept="image/*">
+      <button type="button" id="setImageBtn">Set Image</button>
+    </form>
+
     <!-- Data Entry Form -->
     <form id="dataForm">
       <label for="loftSelect">Loft:</label>
-      <select id="loftSelect">
-        <!-- Dropdown is populated dynamically -->
-      </select>
+      <select id="loftSelect"></select>
 
       <label for="pigeonNumber">Pigeon Number:</label>
-      <select id="pigeonNumber">
-        <!-- Dropdown is populated dynamically for the selected loft -->
-      </select>
+      <select id="pigeonNumber"></select>
 
       <label for="timeInput">Time (HH:MM:SS):</label>
       <input type="text" id="timeInput" placeholder="HHMMSS">
@@ -101,7 +104,6 @@
   </div>
 
   <script>
-    // Ensure the script dynamically populates the dropdowns and handles actions
     document.addEventListener("DOMContentLoaded", () => {
       const loftSelect = document.getElementById("loftSelect");
       const pigeonNumberDropdown = document.getElementById("pigeonNumber");
@@ -120,10 +122,9 @@
         updatePigeonNumberDropdown(loftSelect.value - 1);
       });
 
-      // Function to update Pigeon Number Dropdown
       function updatePigeonNumberDropdown(loftIndex) {
-        const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill("")); // Default data
-        pigeonNumberDropdown.innerHTML = ""; // Clear existing options
+        const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
+        pigeonNumberDropdown.innerHTML = "";
 
         for (let i = 0; i < 7; i++) {
           const option = document.createElement("option");
@@ -134,66 +135,78 @@
         }
       }
 
-      // Trigger initial population of Pigeon Number Dropdown
       loftSelect.dispatchEvent(new Event("change"));
 
-      // Handle Page Heading Submission
+      // Page Heading Save
       document.getElementById("setPageHeadingBtn").addEventListener("click", () => {
         const heading = pageHeadingInput.value;
         if (heading) {
-          localStorage.setItem("pageHeading", heading); // Save heading to localStorage
-          localStorage.setItem("lastUpdated", new Date().toLocaleString()); // Update timestamp
+          localStorage.setItem("pageHeading", heading);
+          localStorage.setItem("lastUpdated", new Date().toLocaleString());
           alert("Page heading updated!");
         } else {
           alert("Please enter a valid heading.");
         }
       });
 
-      // Handle Time Entry Submission
+      // Image Upload Save
+      document.getElementById("setImageBtn").addEventListener("click", () => {
+        const fileInput = document.getElementById("imageUpload");
+        const file = fileInput.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            localStorage.setItem("topImage", event.target.result);
+            localStorage.setItem("lastUpdated", new Date().toLocaleString());
+            alert("Top image updated!");
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("Please select an image.");
+        }
+      });
+
+      // Time Save
       document.getElementById("saveBtn").addEventListener("click", () => {
-        const loftIndex = loftSelect.value - 1; // Selected loft index
-        const pigeonIdx = pigeonNumberDropdown.value - 1; // Selected pigeon number (converted to 0-based index)
+        const loftIndex = loftSelect.value - 1;
+        const pigeonIdx = pigeonNumberDropdown.value - 1;
         const timeInput = document.getElementById("timeInput").value;
 
-        // Validate time format (HH:MM:SS)
         if (!isValidTimeFormat(timeInput)) {
           alert("Invalid time format. Please use HH:MM:SS.");
           return;
         }
 
         const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
-        loftData[loftIndex][pigeonIdx] = timeInput; // Save the time in the correct slot
-        localStorage.setItem("loftData", JSON.stringify(loftData)); // Save data to localStorage
-        localStorage.setItem("lastUpdated", new Date().toLocaleString()); // Update timestamp
+        loftData[loftIndex][pigeonIdx] = timeInput;
+        localStorage.setItem("loftData", JSON.stringify(loftData));
+        localStorage.setItem("lastUpdated", new Date().toLocaleString());
         alert(`Time saved for Loft ${loftSelect.value}, Pigeon ${pigeonNumberDropdown.value}.`);
-        updatePigeonNumberDropdown(loftIndex); // Update the dropdown after saving
+        updatePigeonNumberDropdown(loftIndex);
       });
 
-      // Handle Uraan Ka Time Submission
+      // Uraan Ka Time Save
       document.getElementById("applyUraanTimeBtn").addEventListener("click", () => {
         const uraanTime = document.getElementById("uraanTime").value;
-
-        // Validate Uraan Ka Time format
         if (!isValidTimeFormat(uraanTime)) {
           alert("Invalid Uraan Ka Time format. Please use HH:MM:SS.");
           return;
         }
 
-        localStorage.setItem("uraanKaTime", uraanTime); // Save Uraan Ka Time to localStorage
-        localStorage.setItem("lastUpdated", new Date().toLocaleString()); // Update timestamp
+        localStorage.setItem("uraanKaTime", uraanTime);
+        localStorage.setItem("lastUpdated", new Date().toLocaleString());
         alert("Uraan Ka Time applied!");
       });
 
-      // Validate time format (HH:MM:SS)
       function isValidTimeFormat(timeStr) {
-        const timeRegex = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/; // Matches HH:MM:SS in 24-hour format
+        const timeRegex = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
         return timeRegex.test(timeStr);
       }
 
-      // Auto-format time input fields as HH:MM:SS while typing
+      // Auto-format time inputs
       function autoFormatTime(input) {
         input.addEventListener("input", () => {
-          let value = input.value.replace(/\D/g, ""); // Keep only digits
+          let value = input.value.replace(/\D/g, "");
           if (value.length > 6) value = value.slice(0, 6);
 
           let formatted = "";
@@ -209,7 +222,7 @@
       autoFormatTime(document.getElementById("uraanTime"));
     });
 
-    // Handle Login and Password Setup
+    // Login
     document.getElementById("setPasswordBtn").addEventListener("click", () => {
       const adminPassword = document.getElementById("adminPassword").value;
       if (adminPassword) {
