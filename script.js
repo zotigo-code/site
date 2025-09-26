@@ -9,22 +9,33 @@ if (document.getElementById("loginSection")) {
   const loginSection = document.getElementById("loginSection");
   const formSection = document.getElementById("formSection");
   const loftSelect = document.getElementById("loftSelect");
-  const pigeonNumber = document.getElementById("pigeonNumber");
+  const pigeonNumberDropdown = document.getElementById("pigeonNumber");
   const uraanTimeInput = document.getElementById("uraanTime");
   const timeInput = document.getElementById("timeInput");
 
   // Populate Loft Dropdown
   loftSelect.innerHTML = Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">Loft ${i + 1}</option>`).join("");
 
-  // Update Pigeon Number when Loft is selected
+  // Update Pigeon Number Dropdown when Loft is selected
   loftSelect.addEventListener("change", () => {
-    updatePigeonNumber();
+    updatePigeonNumberDropdown();
   });
 
-  function updatePigeonNumber() {
+  function updatePigeonNumberDropdown() {
     const loftIndex = loftSelect.value - 1;
-    const nextEmpty = loftData[loftIndex].findIndex(value => value === ""); // Find the first empty slot
-    pigeonNumber.value = nextEmpty >= 0 ? nextEmpty + 1 : "Full"; // Show next slot or "Full"
+    pigeonNumberDropdown.innerHTML = ""; // Clear existing options
+
+    // Populate Pigeon Number Dropdown
+    for (let i = 0; i < 7; i++) {
+      const option = document.createElement("option");
+      option.value = i + 1;
+      option.textContent = `Pigeon ${i + 1}`;
+      if (loftData[loftIndex][i] !== "") {
+        // Mark already-filled slots but allow overwriting
+        option.textContent += " (Filled)";
+      }
+      pigeonNumberDropdown.appendChild(option);
+    }
   }
 
   document.getElementById("setPasswordBtn").addEventListener("click", () => {
@@ -44,13 +55,7 @@ if (document.getElementById("loginSection")) {
 
   document.getElementById("saveBtn").addEventListener("click", () => {
     const loftIndex = loftSelect.value - 1; // Selected loft index
-    const pigeonIdx = pigeonNumber.value - 1; // Selected pigeon number (converted to 0-based index)
-
-    // Validate input
-    if (pigeonIdx < 0 || pigeonIdx >= 7 || loftData[loftIndex][pigeonIdx] !== "") {
-      alert("Unable to save. All slots are full or invalid input.");
-      return;
-    }
+    const pigeonIdx = pigeonNumberDropdown.value - 1; // Selected pigeon number (converted to 0-based index)
 
     // Validate time format (HH:MM:SS)
     if (!isValidTimeFormat(timeInput.value)) {
@@ -58,11 +63,11 @@ if (document.getElementById("loginSection")) {
       return;
     }
 
-    // Save the time in the correct slot
+    // Save (or overwrite) the time in the correct slot
     loftData[loftIndex][pigeonIdx] = timeInput.value;
     saveLoftData();
-    alert(`Time saved for Loft ${loftSelect.value}, Pigeon ${pigeonNumber.value}.`);
-    updatePigeonNumber(); // Update the next empty slot after saving
+    alert(`Time saved for Loft ${loftSelect.value}, Pigeon ${pigeonNumberDropdown.value}.`);
+    updatePigeonNumberDropdown(); // Update the dropdown after saving
   });
 
   document.getElementById("applyUraanTimeBtn").addEventListener("click", () => {
