@@ -23,12 +23,12 @@
     <form id="dataForm">
       <label for="loftSelect">Loft:</label>
       <select id="loftSelect">
-        <!-- Dropdown is populated dynamically -->
+        <!-- Loft options will be dynamically populated -->
       </select>
 
       <label for="pigeonNumber">Pigeon Number:</label>
       <select id="pigeonNumber">
-        <!-- Dropdown is populated dynamically for the selected loft -->
+        <!-- Pigeon number options will be dynamically populated -->
       </select>
 
       <label for="timeInput">Time (HH:MM:SS):</label>
@@ -45,6 +45,44 @@
     </form>
   </div>
 
+  <script>
+    // Ensure the script dynamically populates the dropdowns
+    document.addEventListener("DOMContentLoaded", () => {
+      // Loft Dropdown
+      const loftSelect = document.getElementById("loftSelect");
+      const pigeonNumberDropdown = document.getElementById("pigeonNumber");
+
+      // Populate Loft Dropdown
+      for (let i = 1; i <= 10; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = `Loft ${i}`;
+        loftSelect.appendChild(option);
+      }
+
+      // Update Pigeon Number Dropdown when Loft is selected
+      loftSelect.addEventListener("change", () => {
+        updatePigeonNumberDropdown(loftSelect.value - 1);
+      });
+
+      // Function to update Pigeon Number Dropdown
+      function updatePigeonNumberDropdown(loftIndex) {
+        const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill("")); // Default data
+        pigeonNumberDropdown.innerHTML = ""; // Clear existing options
+
+        for (let i = 0; i < 7; i++) {
+          const option = document.createElement("option");
+          option.value = i + 1;
+          const time = loftData[loftIndex][i];
+          option.textContent = time ? `Pigeon ${i + 1} (Filled)` : `Pigeon ${i + 1}`;
+          pigeonNumberDropdown.appendChild(option);
+        }
+      }
+
+      // Trigger initial population of Pigeon Number Dropdown
+      loftSelect.dispatchEvent(new Event("change"));
+    });
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
