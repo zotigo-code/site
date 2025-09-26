@@ -39,6 +39,7 @@
       color: #fff;
       border: none;
       border-radius: 5px;
+      margin-right: 5px;
     }
 
     button:hover {
@@ -72,6 +73,7 @@
       <label for="pageHeadingInput">Page Heading:</label>
       <input type="text" id="pageHeadingInput" placeholder="Enter page heading">
       <button type="button" id="setPageHeadingBtn">Set Heading</button>
+      <button type="button" id="removePageHeadingBtn" style="background-color:red;">Remove Heading</button>
     </form>
 
     <!-- Image Upload Form -->
@@ -79,6 +81,7 @@
       <label for="imageUpload">Top Image:</label>
       <input type="file" id="imageUpload" accept="image/*">
       <button type="button" id="setImageBtn">Set Image</button>
+      <button type="button" id="removeImageBtn" style="background-color:red;">Remove Image</button>
     </form>
 
     <!-- Data Entry Form -->
@@ -117,7 +120,6 @@
         loftSelect.appendChild(option);
       }
 
-      // Update Pigeon Number Dropdown when Loft is selected
       loftSelect.addEventListener("change", () => {
         updatePigeonNumberDropdown(loftSelect.value - 1);
       });
@@ -125,7 +127,6 @@
       function updatePigeonNumberDropdown(loftIndex) {
         const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
         pigeonNumberDropdown.innerHTML = "";
-
         for (let i = 0; i < 7; i++) {
           const option = document.createElement("option");
           option.value = i + 1;
@@ -137,7 +138,7 @@
 
       loftSelect.dispatchEvent(new Event("change"));
 
-      // Page Heading Save
+      // Page Heading
       document.getElementById("setPageHeadingBtn").addEventListener("click", () => {
         const heading = pageHeadingInput.value;
         if (heading) {
@@ -149,7 +150,13 @@
         }
       });
 
-      // Image Upload Save
+      document.getElementById("removePageHeadingBtn").addEventListener("click", () => {
+        localStorage.removeItem("pageHeading");
+        localStorage.setItem("lastUpdated", new Date().toLocaleString());
+        alert("Page heading removed!");
+      });
+
+      // Image
       document.getElementById("setImageBtn").addEventListener("click", () => {
         const fileInput = document.getElementById("imageUpload");
         const file = fileInput.files[0];
@@ -166,7 +173,13 @@
         }
       });
 
-      // Time Save
+      document.getElementById("removeImageBtn").addEventListener("click", () => {
+        localStorage.removeItem("topImage");
+        localStorage.setItem("lastUpdated", new Date().toLocaleString());
+        alert("Top image removed!");
+      });
+
+      // Time
       document.getElementById("saveBtn").addEventListener("click", () => {
         const loftIndex = loftSelect.value - 1;
         const pigeonIdx = pigeonNumberDropdown.value - 1;
@@ -185,14 +198,13 @@
         updatePigeonNumberDropdown(loftIndex);
       });
 
-      // Uraan Ka Time Save
+      // Uraan Ka Time
       document.getElementById("applyUraanTimeBtn").addEventListener("click", () => {
         const uraanTime = document.getElementById("uraanTime").value;
         if (!isValidTimeFormat(uraanTime)) {
           alert("Invalid Uraan Ka Time format. Please use HH:MM:SS.");
           return;
         }
-
         localStorage.setItem("uraanKaTime", uraanTime);
         localStorage.setItem("lastUpdated", new Date().toLocaleString());
         alert("Uraan Ka Time applied!");
@@ -203,21 +215,18 @@
         return timeRegex.test(timeStr);
       }
 
-      // Auto-format time inputs
+      // Auto-format HHMMSS inputs
       function autoFormatTime(input) {
         input.addEventListener("input", () => {
           let value = input.value.replace(/\D/g, "");
           if (value.length > 6) value = value.slice(0, 6);
-
           let formatted = "";
           if (value.length > 0) formatted = value.slice(0, 2);
           if (value.length >= 3) formatted += ":" + value.slice(2, 4);
           if (value.length >= 5) formatted += ":" + value.slice(4, 6);
-
           input.value = formatted;
         });
       }
-
       autoFormatTime(document.getElementById("timeInput"));
       autoFormatTime(document.getElementById("uraanTime"));
     });
