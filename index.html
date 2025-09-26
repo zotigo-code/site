@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Table</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Loft Times Table</h1>
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th>Loft</th>
+        <th>Time 1</th>
+        <th>Time 2</th>
+        <th>Time 3</th>
+        <th>Time 4</th>
+        <th>Time 5</th>
+        <th>Time 6</th>
+        <th>Time 7</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 10 Empty Rows -->
+      <script>
+        for (let i = 1; i <= 10; i++) {
+          document.write(`<tr>
+            <td>Loft ${i}</td>
+            ${'<td></td>'.repeat(7)}
+            <td></td>
+          </tr>`);
+        }
+      </script>
+    </tbody>
+  </table>
+  <script src="script.js"></script>
+</body>
+</html>
