@@ -13,6 +13,17 @@
     th,td { border:1px solid #ddd; padding:8px; text-align:center; }
     th { background:lightcoral; color:white; }
     tbody tr:nth-child(even){ background:#f0f8ff; }
+
+    /* ✅ Blink effect */
+    .blink {
+      animation: blink-animation 1s infinite alternate;
+      background-color: lightgreen;
+    }
+    @keyframes blink-animation {
+      from { background-color: lightgreen; }
+      to { background-color: transparent; }
+    }
+
     .stats { display:flex; justify-content:space-between; margin-bottom:15px; }
   </style>
 </head>
@@ -57,27 +68,37 @@
 
       let allTimes=[];
 
-      rows.forEach((r,idx)=>{
-        let row=`<tr><td>${idx+1}</td><td>${r.name}</td>`;
-        let total=0;
-        r.times.forEach(t=>{
-          row+=`<td>${t||""}</td>`;
-          if(t){ total+=parseTime(t)-parseTime(uraan); allTimes.push(t); }
-        });
-        row+=`<td>${fmt(total)}</td></tr>`;
-        body.innerHTML+=row;
+      rows.forEach(r=>{
+        r.times.forEach(t=>{ if(t) allTimes.push(t); });
       });
 
-      // Stats
+      let latestTime = null;
       if(allTimes.length>0){
         allTimes.sort();
         document.getElementById("firstPigeonLanded").textContent=allTimes[0];
         document.getElementById("lastPigeonLanded").textContent=allTimes[allTimes.length-1];
+        latestTime = allTimes[allTimes.length-1]; // ✅ track latest
       } else {
         document.getElementById("firstPigeonLanded").textContent="N/A";
         document.getElementById("lastPigeonLanded").textContent="N/A";
       }
       document.getElementById("totalPigeons").textContent=rows.length * (config ? config.pigeons : 0);
+
+      rows.forEach((r,idx)=>{
+        let row=`<tr><td>${idx+1}</td><td>${r.name}</td>`;
+        let total=0;
+        r.times.forEach(t=>{
+          if(t){
+            const diff=parseTime(t)-parseTime(uraan);
+            total+=diff;
+            row+=`<td class="${t===latestTime ? "blink" : ""}">${t}</td>`;
+          } else {
+            row+=`<td></td>`;
+          }
+        });
+        row+=`<td>${fmt(total)}</td></tr>`;
+        body.innerHTML+=row;
+      });
 
       if(image)document.getElementById("topImageContainer").innerHTML=`<img src="${image}">`;
     }
