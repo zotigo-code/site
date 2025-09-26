@@ -112,6 +112,9 @@ function updateMainTable() {
       }
       row.cells[8].textContent = totalSeconds ? formatSeconds(totalSeconds) : "";
     });
+
+    // Save data to localStorage so the main table persists
+    localStorage.setItem("loftData", JSON.stringify(loftData));
   }
 }
 
@@ -125,4 +128,10 @@ function formatSeconds(seconds) {
   const mm = Math.floor((seconds % 3600) / 60);
   const ss = seconds % 60;
   return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+}
+
+// Restore saved data from localStorage (if available)
+if (mainTable && localStorage.getItem("loftData")) {
+  loftData = JSON.parse(localStorage.getItem("loftData"));
+  updateMainTable();
 }
