@@ -5,6 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, select, button {
+      margin-bottom: 10px;
+      padding: 8px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #loginSection {
+      margin-bottom: 20px;
+    }
+
+    #formSection {
+      display: none;
+    }
+  </style>
 </head>
 <body>
   <h1>Admin Panel</h1>
@@ -17,18 +65,25 @@
     <button id="loginBtn">Login</button>
   </div>
 
-  <!-- Data Entry Form -->
-  <div id="formSection" style="display: none;">
-    <h2>Enter Data for Loft</h2>
+  <!-- Form Section -->
+  <div id="formSection">
+    <!-- Page Heading Form -->
+    <form id="pageHeadingForm">
+      <label for="pageHeadingInput">Page Heading:</label>
+      <input type="text" id="pageHeadingInput" placeholder="Enter page heading">
+      <button type="button" id="setPageHeadingBtn">Set Heading</button>
+    </form>
+
+    <!-- Data Entry Form -->
     <form id="dataForm">
       <label for="loftSelect">Loft:</label>
       <select id="loftSelect">
-        <!-- Loft options will be dynamically populated -->
+        <!-- Dropdown is populated dynamically -->
       </select>
 
       <label for="pigeonNumber">Pigeon Number:</label>
       <select id="pigeonNumber">
-        <!-- Pigeon number options will be dynamically populated -->
+        <!-- Dropdown is populated dynamically for the selected loft -->
       </select>
 
       <label for="timeInput">Time (HH:MM:SS):</label>
@@ -37,7 +92,7 @@
       <button type="button" id="saveBtn">Save</button>
     </form>
 
-    <h2>Apply Uraan Ka Time</h2>
+    <!-- Uraan Ka Time Form -->
     <form id="globalTimeForm">
       <label for="uraanTime">Uraan Ka Time:</label>
       <input type="text" id="uraanTime" placeholder="e.g., 12:34:56">
@@ -46,11 +101,11 @@
   </div>
 
   <script>
-    // Ensure the script dynamically populates the dropdowns
+    // Ensure the script dynamically populates the dropdowns and handles actions
     document.addEventListener("DOMContentLoaded", () => {
-      // Loft Dropdown
       const loftSelect = document.getElementById("loftSelect");
       const pigeonNumberDropdown = document.getElementById("pigeonNumber");
+      const pageHeadingInput = document.getElementById("pageHeadingInput");
 
       // Populate Loft Dropdown
       for (let i = 1; i <= 10; i++) {
@@ -81,8 +136,82 @@
 
       // Trigger initial population of Pigeon Number Dropdown
       loftSelect.dispatchEvent(new Event("change"));
+
+      // Handle Page Heading Submission
+      document.getElementById("setPageHeadingBtn").addEventListener("click", () => {
+        const heading = pageHeadingInput.value;
+        if (heading) {
+          localStorage.setItem("pageHeading", heading); // Save heading to localStorage
+          localStorage.setItem("lastUpdated", new Date().toLocaleString()); // Update timestamp
+          alert("Page heading updated!");
+        } else {
+          alert("Please enter a valid heading.");
+        }
+      });
+
+      // Handle Time Entry Submission
+      document.getElementById("saveBtn").addEventListener("click", () => {
+        const loftIndex = loftSelect.value - 1; // Selected loft index
+        const pigeonIdx = pigeonNumberDropdown.value - 1; // Selected pigeon number (converted to 0-based index)
+        const timeInput = document.getElementById("timeInput").value;
+
+        // Validate time format (HH:MM:SS)
+        if (!isValidTimeFormat(timeInput)) {
+          alert("Invalid time format. Please use HH:MM:SS.");
+          return;
+        }
+
+        const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
+        loftData[loftIndex][pigeonIdx] = timeInput; // Save the time in the correct slot
+        localStorage.setItem("loftData", JSON.stringify(loftData)); // Save data to localStorage
+        localStorage.setItem("lastUpdated", new Date().toLocaleString()); // Update timestamp
+        alert(`Time saved for Loft ${loftSelect.value}, Pigeon ${pigeonNumberDropdown.value}.`);
+        updatePigeonNumberDropdown(loftIndex); // Update the dropdown after saving
+      });
+
+      // Handle Uraan Ka Time Submission
+      document.getElementById("applyUraanTimeBtn").addEventListener("click", () => {
+        const uraanTime = document.getElementById("uraanTime").value;
+
+        // Validate Uraan Ka Time format
+        if (!isValidTimeFormat(uraanTime)) {
+          alert("Invalid Uraan Ka Time format. Please use HH:MM:SS.");
+          return;
+        }
+
+        localStorage.setItem("uraanKaTime", uraanTime); // Save Uraan Ka Time to localStorage
+        localStorage.setItem("lastUpdated", new Date().toLocaleString()); // Update timestamp
+        alert("Uraan Ka Time applied!");
+      });
+
+      // Validate time format (HH:MM:SS)
+      function isValidTimeFormat(timeStr) {
+        const timeRegex = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/; // Matches HH:MM:SS in 24-hour format
+        return timeRegex.test(timeStr);
+      }
+    });
+
+    // Handle Login and Password Setup
+    document.getElementById("setPasswordBtn").addEventListener("click", () => {
+      const adminPassword = document.getElementById("adminPassword").value;
+      if (adminPassword) {
+        localStorage.setItem("adminPassword", adminPassword);
+        alert("Password set successfully!");
+      } else {
+        alert("Please enter a valid password.");
+      }
+    });
+
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      const enteredPassword = document.getElementById("adminPassword").value;
+      const storedPassword = localStorage.getItem("adminPassword");
+      if (enteredPassword === storedPassword) {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("formSection").style.display = "block";
+      } else {
+        alert("Incorrect password!");
+      }
     });
   </script>
-  <script src="script.js"></script>
 </body>
 </html>
