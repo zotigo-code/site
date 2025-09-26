@@ -2,6 +2,7 @@
 const mainTable = document.getElementById("mainTable")?.getElementsByTagName("tbody")[0];
 let adminPassword = localStorage.getItem("adminPassword") || "";
 let loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill("")); // Load saved data or initialise empty
+let uraanKaTime = parseTime(localStorage.getItem("uraanKaTime") || "00:00:00"); // Default to 00:00:00 if not set
 
 // Admin Page Script
 if (document.getElementById("loginSection")) {
@@ -65,19 +66,18 @@ if (document.getElementById("loginSection")) {
   });
 
   document.getElementById("applyUraanTimeBtn").addEventListener("click", () => {
-    const uraanTime = parseTime(uraanTimeInput.value);
-
-    // Validate time format
-    if (!uraanTimeInput.value || isNaN(uraanTime)) {
+    // Validate Uraan Ka Time format
+    if (!isValidTimeFormat(uraanTimeInput.value)) {
       alert("Invalid Uraan Ka Time format. Please use HH:MM:SS.");
       return;
     }
 
-    // Apply "Uraan Ka Time" to all rows
-    loftData = loftData.map(row =>
-      row.map(time => time ? subtractTime(parseTime(time), uraanTime) : time)
-    );
-    saveLoftData();
+    // Save Uraan Ka Time to localStorage
+    uraanKaTime = parseTime(uraanTimeInput.value);
+    localStorage.setItem("uraanKaTime", uraanTimeInput.value);
+
+    // Update the main table to reflect the new Total column calculations
+    updateMainTable();
     alert("Uraan Ka Time applied to all rows.");
   });
 
@@ -110,13 +110,22 @@ if (document.getElementById("loginSection")) {
 function updateMainTable() {
   if (mainTable) {
     Array.from(mainTable.rows).forEach((row, i) => {
-      let totalSeconds = 0;
+      let totalSeconds = 0; // Total for the row
+
       for (let j = 1; j <= 7; j++) {
         const time = loftData[i][j - 1];
-        row.cells[j].textContent = time || "";
-        if (time) totalSeconds += parseTime(time);
+        row.cells[j].textContent = time || ""; // Populate the actual entered time
+
+        // Calculate the difference (time - Uraan Ka Time) and add to total
+        if (time) {
+          const timeInSeconds = parseTime(time);
+          const adjustedTime = Math.max(0, timeInSeconds - uraanKaTime); // Avoid negative values
+          totalSeconds += adjustedTime;
+        }
       }
-      row.cells[8].textContent = totalSeconds ? formatSeconds(totalSeconds) : "";
+
+      // Set the Total column value (sum of differences)
+      row.cells[8].textContent = formatSeconds(totalSeconds);
     });
   }
 }
@@ -136,5 +145,6 @@ function formatSeconds(seconds) {
 // Restore saved data from localStorage (if available)
 if (mainTable && localStorage.getItem("loftData")) {
   loftData = JSON.parse(localStorage.getItem("loftData"));
+  uraanKaTime = parseTime(localStorage.getItem("uraanKaTime") || "00:00:00"); // Load Uraan Ka Time
   updateMainTable();
 }
