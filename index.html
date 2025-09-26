@@ -9,14 +9,13 @@
     /* Top Image */
     #topImageContainer {
       width: 100%;
-      height: 20vh; /* 20% of screen height */
       overflow: hidden;
       margin-bottom: 10px;
     }
     #topImageContainer img {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* stretch + crop to fill */
+      object-fit: cover;
     }
 
     h1 {
@@ -113,19 +112,24 @@
   <footer id="lastUpdated">Last Updated: N/A</footer>
 
   <script>
-    const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
-    const uraanKaTime = localStorage.getItem("uraanKaTime") || "00:00:00";
-    const pageHeading = localStorage.getItem("pageHeading") || "Loft Times Table";
-    const lastUpdated = localStorage.getItem("lastUpdated") || "N/A";
-    let latestTime = null;
+    let loftData, uraanKaTime, pageHeading, lastUpdated, latestTime;
+
+    function loadData() {
+      loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
+      uraanKaTime = localStorage.getItem("uraanKaTime") || "00:00:00";
+      pageHeading = localStorage.getItem("pageHeading") || "Loft Times Table";
+      lastUpdated = localStorage.getItem("lastUpdated") || "N/A";
+    }
 
     function updateStats() {
       const firstPigeonLanded = document.getElementById("firstPigeonLanded");
       const lastPigeonLanded = document.getElementById("lastPigeonLanded");
       const uraanKaTimeDisplay = document.getElementById("uraanKaTimeDisplay");
       const totalPigeonsFlown = document.getElementById("totalPigeonsFlown");
+
       uraanKaTimeDisplay.textContent = uraanKaTime;
       let firstTime = null; latestTime = null;
+
       for (let i = 0; i < loftData.length; i++) {
         for (let j = 0; j < loftData[i].length; j++) {
           const time = loftData[i][j];
@@ -135,6 +139,7 @@
           }
         }
       }
+
       firstPigeonLanded.textContent = firstTime || "N/A";
       lastPigeonLanded.textContent = latestTime || "N/A";
       totalPigeonsFlown.textContent = loftData.length * 7;
@@ -143,11 +148,13 @@
     function updateMainTable() {
       const mainTable = document.getElementById("mainTable").getElementsByTagName("tbody")[0];
       mainTable.innerHTML = "";
+
       loftData.forEach((loft, i) => {
         const row = document.createElement("tr");
         const loftCell = document.createElement("td");
         loftCell.textContent = `Loft ${i + 1}`;
         row.appendChild(loftCell);
+
         let totalSeconds = 0;
         loft.forEach((time) => {
           const cell = document.createElement("td");
@@ -158,10 +165,13 @@
           }
           row.appendChild(cell);
         });
+
         for (let j = loft.length; j < 7; j++) row.appendChild(document.createElement("td"));
+
         const totalCell = document.createElement("td");
         totalCell.textContent = totalSeconds > 0 ? formatSeconds(totalSeconds) : "";
         row.appendChild(totalCell);
+
         mainTable.appendChild(row);
       });
     }
@@ -170,6 +180,7 @@
       const [hh, mm, ss] = timeStr.split(":").map(Number);
       return hh * 3600 + mm * 60 + ss;
     }
+
     function formatSeconds(seconds) {
       const hh = String(Math.floor(seconds / 3600)).padStart(2, "0");
       const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
@@ -177,16 +188,37 @@
       return `${hh}:${mm}:${ss}`;
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    function updatePage() {
+      loadData();
       document.getElementById("pageHeading").textContent = pageHeading;
       document.getElementById("lastUpdated").textContent = `Last Updated: ${lastUpdated}`;
       updateStats();
       updateMainTable();
+
+      // Top Image
+      const banner = document.getElementById("topImageContainer");
+      banner.innerHTML = "";
       const savedImage = localStorage.getItem("topImage");
       if (savedImage) {
-        document.getElementById("topImageContainer").innerHTML =
-          `<img src="${savedImage}" alt="Top Image">`;
+        banner.innerHTML = `<img src="${savedImage}" alt="Top Image">`;
+
+        // Set height = 20% of table
+        const table = document.getElementById("mainTable");
+        function resizeBanner() {
+          banner.style.height = (table.offsetHeight * 0.2) + "px";
+        }
+        resizeBanner();
+        window.addEventListener("resize", resizeBanner);
+      } else {
+        banner.style.height = "0px"; // hide if no image
       }
+    }
+
+    document.addEventListener("DOMContentLoaded", updatePage);
+
+    // 🔄 Listen for changes from admin.html (localStorage updates)
+    window.addEventListener("storage", () => {
+      updatePage();
     });
   </script>
 </body>
