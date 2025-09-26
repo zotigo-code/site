@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament</title>
+  <style>
+    #topImageContainer{width:100%;height:20vh;overflow:hidden;margin-bottom:10px;}
+    #topImageContainer img{width:100%;height:100%;object-fit:cover;}
+    h1{background:lightblue;text-align:center;font-size:2rem;padding:10px;margin-bottom:20px;}
+    table{border-collapse:collapse;width:100%;table-layout:fixed;}
+    th,td{border:1px solid #ddd;padding:8px;text-align:center;}
+    th{background:lightcoral;color:white;}
+    tbody tr:nth-child(even){background:#f0f8ff;}
+  </style>
+</head>
+<body>
+  <div id="topImageContainer"></div>
+  <h1 id="heading">Tournament</h1>
+  <div><strong>Sab Lofts Ka Uraan Ka Time:</strong> <span id="uraan"></span></div>
+  <table id="mainTable"><thead></thead><tbody></tbody></table>
+
+  <script>
+    function getParam(name){return new URLSearchParams(window.location.search).get(name);}
+    function parseTime(t){if(!t)return 0;const [h,m,s]=t.split(":").map(Number);return h*3600+m*60+s;}
+    function fmt(sec){if(sec<=0)return"";const h=String(Math.floor(sec/3600)).padStart(2,"0");const m=String(Math.floor((sec%3600)/60)).padStart(2,"0");const s=String(sec%60).padStart(2,"0");return `${h}:${m}:${s}`;}
+
+    document.addEventListener("DOMContentLoaded",()=>{
+      const id=getParam("id");
+      const hist=JSON.parse(localStorage.getItem("tableHistory"))||[];
+      const t=hist.find(x=>x.id===id);
+      if(!t)return;
+      document.getElementById("heading").textContent=t.heading;
+      document.getElementById("uraan").textContent=t.uraanKaTime;
+      if(t.image)document.getElementById("topImageContainer").innerHTML=`<img src="${t.image}">`;
+
+      const head=document.querySelector("#mainTable thead");
+      const body=document.querySelector("#mainTable tbody");
+      let thRow="<tr><th>#</th><th>Name</th>";
+      for(let i=1;i<=t.pigeons;i++) thRow+=`<th>${i}</th>`;
+      thRow+="<th>Total</th></tr>";
+      head.innerHTML=thRow;
+
+      t.rows.forEach((r,idx)=>{
+        let row=`<tr><td>${idx+1}</td><td>${r.name}</td>`;
+        let total=0;
+        r.times.forEach(tt=>{row+=`<td>${tt||""}</td>`; if(tt) total+=parseTime(tt)-parseTime(t.uraanKaTime);});
+        row+=`<td>${fmt(total)}</td></tr>`;
+        body.innerHTML+=row;
+      });
+    });
+  </script>
+</body>
+</html>
