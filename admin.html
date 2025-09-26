@@ -163,16 +163,21 @@
 
       // Add row (Name only)
       document.getElementById("addRowBtn").addEventListener("click", () => {
-        const config = JSON.parse(localStorage.getItem("tournamentConfig"));
-        if (!config) return alert("No tournament created yet.");
-        const name = document.getElementById("rowName").value;
-        if (!name) return alert("Please enter a name.");
-        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        rows.push({ name, times: Array(config.pigeons).fill("") });
-        localStorage.setItem("tournamentRows", JSON.stringify(rows));
-        alert("Row added");
-        renderNameDropdown();
-      });
+   const config = JSON.parse(localStorage.getItem("tournamentConfig"));
+   if (!config) return alert("No tournament created yet.");
+   const nameInput = document.getElementById("rowName");
+   const name = nameInput.value.trim();
+   if (!name) return alert("Please enter a name.");
+
+   const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
+   rows.push({ name, times: Array(config.pigeons).fill("") });
+   localStorage.setItem("tournamentRows", JSON.stringify(rows));
+
+   alert("Row added");
+   nameInput.value = "";   // ✅ Clear input after adding
+   renderNameDropdown();
+ });
+
 
       // Populate name dropdown
       function renderNameDropdown() {
