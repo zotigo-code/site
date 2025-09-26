@@ -13,20 +13,26 @@
     th,td { border:1px solid #ddd; padding:8px; text-align:center; }
     th { background:lightcoral; color:white; }
     tbody tr:nth-child(even){ background:#f0f8ff; }
+    .stats { display:flex; justify-content:space-between; margin-bottom:15px; }
   </style>
 </head>
 <body>
   <div id="topImageContainer"></div>
-  <h1 id="pageHeading">Tournament <a href="previous.html"><button id="prevBtn">Previous Tournaments</button></a></h1>
+  <h1 id="pageHeading">Tournament 
+    <a href="previous.html"><button id="prevBtn">Previous Tournaments</button></a>
+  </h1>
 
-  <div>
-    <strong>Sab Lofts Ka Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span>
+  <div class="stats">
+    <div><strong>First Pigeon Landed:</strong> <span id="firstPigeonLanded">N/A</span></div>
+    <div><strong>Last Pigeon Landed:</strong> <span id="lastPigeonLanded">N/A</span></div>
+    <div><strong>Total Number of Pigeons:</strong> <span id="totalPigeons">0</span></div>
+    <div><strong>Sab Lofts Ka Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span></div>
   </div>
 
   <table id="mainTable"><thead></thead><tbody></tbody></table>
 
   <script>
-    function parseTime(t){if(!t)return 0;const [h,m,s]=t.split(":").map(Number);return h*3600+m*60+s;}
+    function parseTime(t){if(!t)return null;const [h,m,s]=t.split(":").map(Number);return h*3600+m*60+s;}
     function fmt(sec){if(sec<=0)return"";const h=String(Math.floor(sec/3600)).padStart(2,"0");const m=String(Math.floor((sec%3600)/60)).padStart(2,"0");const s=String(sec%60).padStart(2,"0");return `${h}:${m}:${s}`;}
 
     function renderTable(){
@@ -38,6 +44,7 @@
 
       document.getElementById("pageHeading").childNodes[0].textContent=heading+" ";
       document.getElementById("uraanKaTimeDisplay").textContent=uraan;
+
       const head=document.querySelector("#mainTable thead");
       const body=document.querySelector("#mainTable tbody");
       head.innerHTML=""; body.innerHTML="";
@@ -48,13 +55,29 @@
       thRow+="<th>Total</th></tr>";
       head.innerHTML=thRow;
 
+      let allTimes=[];
+
       rows.forEach((r,idx)=>{
         let row=`<tr><td>${idx+1}</td><td>${r.name}</td>`;
         let total=0;
-        r.times.forEach(t=>{ row+=`<td>${t||""}</td>`; if(t) total+=parseTime(t)-parseTime(uraan); });
+        r.times.forEach(t=>{
+          row+=`<td>${t||""}</td>`;
+          if(t){ total+=parseTime(t)-parseTime(uraan); allTimes.push(t); }
+        });
         row+=`<td>${fmt(total)}</td></tr>`;
         body.innerHTML+=row;
       });
+
+      // Stats
+      if(allTimes.length>0){
+        allTimes.sort();
+        document.getElementById("firstPigeonLanded").textContent=allTimes[0];
+        document.getElementById("lastPigeonLanded").textContent=allTimes[allTimes.length-1];
+      } else {
+        document.getElementById("firstPigeonLanded").textContent="N/A";
+        document.getElementById("lastPigeonLanded").textContent="N/A";
+      }
+      document.getElementById("totalPigeons").textContent=rows.length * (config ? config.pigeons : 0);
 
       if(image)document.getElementById("topImageContainer").innerHTML=`<img src="${image}">`;
     }
