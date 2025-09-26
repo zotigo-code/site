@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Admin Panel</h1>
+
+  <div id="loginSection">
+    <h2>Set or Enter Password</h2>
+    <input type="password" id="adminPassword" placeholder="Enter password">
+    <button id="setPasswordBtn">Set Password</button>
+    <button id="loginBtn">Login</button>
+  </div>
+
+  <div id="formSection" style="display: none;">
+    <form id="dataForm">
+      <label for="loftSelect">Loft:</label>
+      <select id="loftSelect">
+        <!-- Dropdown is populated dynamically -->
+      </select>
+      
+      <label for="pigeonNumber">Pigeon Number:</label>
+      <input type="number" id="pigeonNumber" readonly>
+
+      <label for="timeInput">Time (HH:MM:SS):</label>
+      <input type="text" id="timeInput" placeholder="e.g., 12:34:56">
+
+      <button type="button" id="saveBtn">Save</button>
+    </form>
+
+    <form id="globalTimeForm">
+      <label for="uraanTime">Uraan Ka Time:</label>
+      <input type="text" id="uraanTime" placeholder="e.g., 12:34:56">
+      <button type="button" id="applyUraanTimeBtn">Apply</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
