@@ -8,6 +8,22 @@
 </head>
 <body>
   <h1>Loft Times Table</h1>
+
+  <!-- Values Above the Table -->
+  <div id="tableStats" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+      <strong>First Pigeon Landed:</strong> <span id="firstPigeonLanded">N/A</span>
+      <strong>Last Pigeon Landed:</strong> <span id="lastPigeonLanded">N/A</span>
+    </div>
+    <div>
+      <strong>Total Number of Pigeons Flown:</strong> <span id="totalPigeonsFlown">70</span>
+    </div>
+    <div>
+      <strong>Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span>
+    </div>
+  </div>
+
+  <!-- Main Table -->
   <table id="mainTable">
     <thead>
       <tr>
@@ -35,6 +51,99 @@
       </script>
     </tbody>
   </table>
-  <script src="script.js"></script>
+
+  <script>
+    // Load loft data and uraan ka time from localStorage
+    const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
+    const uraanKaTime = localStorage.getItem("uraanKaTime") || "00:00:00";
+
+    // Update Stats
+    function updateStats() {
+      const firstPigeonLanded = document.getElementById("firstPigeonLanded");
+      const lastPigeonLanded = document.getElementById("lastPigeonLanded");
+      const uraanKaTimeDisplay = document.getElementById("uraanKaTimeDisplay");
+      const totalPigeonsFlown = document.getElementById("totalPigeonsFlown");
+
+      // Set Uraan Ka Time
+      uraanKaTimeDisplay.textContent = uraanKaTime;
+
+      // Find the first and last pigeon landed
+      let firstTime = null, lastTime = null;
+      for (let i = 0; i < loftData.length; i++) {
+        for (let j = 0; j < loftData[i].length; j++) {
+          const time = loftData[i][j];
+          if (time) {
+            if (!firstTime || time < firstTime) firstTime = time;
+            if (!lastTime || time > lastTime) lastTime = time;
+          }
+        }
+      }
+
+      firstPigeonLanded.textContent = firstTime || "N/A";
+      lastPigeonLanded.textContent = lastTime || "N/A";
+
+      // Set Total Pigeons Flown
+      totalPigeonsFlown.textContent = loftData.length * 7; // Total lofts * 7 pigeons per loft
+    }
+
+    // Update Main Table
+    function updateMainTable() {
+      const mainTable = document.getElementById("mainTable").getElementsByTagName("tbody")[0];
+
+      // Clear existing table rows
+      mainTable.innerHTML = "";
+
+      // Populate table with data
+      loftData.forEach((loft, i) => {
+        const row = document.createElement("tr");
+        const loftCell = document.createElement("td");
+        loftCell.textContent = `Loft ${i + 1}`;
+        row.appendChild(loftCell);
+
+        let totalSeconds = 0;
+        loft.forEach((time, j) => {
+          const cell = document.createElement("td");
+          if (time) {
+            cell.textContent = time;
+            totalSeconds += parseTimeInSeconds(time) - parseTimeInSeconds(uraanKaTime);
+          }
+          row.appendChild(cell);
+        });
+
+        // Add empty cells for missing times
+        for (let j = loft.length; j < 7; j++) {
+          const cell = document.createElement("td");
+          row.appendChild(cell);
+        }
+
+        // Add total column
+        const totalCell = document.createElement("td");
+        totalCell.textContent = totalSeconds > 0 ? formatSeconds(totalSeconds) : "";
+        row.appendChild(totalCell);
+
+        mainTable.appendChild(row);
+      });
+    }
+
+    // Helper: Parse time in HH:MM:SS to seconds
+    function parseTimeInSeconds(timeStr) {
+      const [hh, mm, ss] = timeStr.split(":").map(Number);
+      return hh * 3600 + mm * 60 + ss;
+    }
+
+    // Helper: Format seconds to HH:MM:SS
+    function formatSeconds(seconds) {
+      const hh = String(Math.floor(seconds / 3600)).padStart(2, "0");
+      const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+      const ss = String(seconds % 60).padStart(2, "0");
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    // Load data on page load
+    document.addEventListener("DOMContentLoaded", () => {
+      updateStats();
+      updateMainTable();
+    });
+  </script>
 </body>
 </html>
