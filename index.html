@@ -9,17 +9,18 @@
     /* Top Image */
     #topImageContainer {
       width: 100%;
+      height: 20vh; /* 20% of page height */
       overflow: hidden;
       margin-bottom: 10px;
     }
     #topImageContainer img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: cover; /* fill area */
     }
 
     h1 {
-      background-color: lightyellow;
+      background-color: lightblue; /* changed from yellow to light blue */
       text-align: center;
       font-size: 2rem;
       padding: 10px;
@@ -84,7 +85,7 @@
       <strong>First Pigeon Landed:</strong> <span id="firstPigeonLanded">N/A</span>
       <strong>Last Pigeon Landed:</strong> <span id="lastPigeonLanded">N/A</span>
     </div>
-    <div><strong>Total Number of Pigeons Flown:</strong> <span id="totalPigeonsFlown">70</span></div>
+    <div><strong>Total Number of Pigeons:</strong> <span id="totalPigeons">70</span></div>
     <div><strong>Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span></div>
   </div>
 
@@ -125,7 +126,7 @@
       const firstPigeonLanded = document.getElementById("firstPigeonLanded");
       const lastPigeonLanded = document.getElementById("lastPigeonLanded");
       const uraanKaTimeDisplay = document.getElementById("uraanKaTimeDisplay");
-      const totalPigeonsFlown = document.getElementById("totalPigeonsFlown");
+      const totalPigeons = document.getElementById("totalPigeons");
 
       uraanKaTimeDisplay.textContent = uraanKaTime;
       let firstTime = null; latestTime = null;
@@ -142,7 +143,7 @@
 
       firstPigeonLanded.textContent = firstTime || "N/A";
       lastPigeonLanded.textContent = latestTime || "N/A";
-      totalPigeonsFlown.textContent = loftData.length * 7;
+      totalPigeons.textContent = loftData.length * 7;
     }
 
     function updateMainTable() {
@@ -201,14 +202,6 @@
       const savedImage = localStorage.getItem("topImage");
       if (savedImage) {
         banner.innerHTML = `<img src="${savedImage}" alt="Top Image">`;
-
-        // Set height = 20% of table
-        const table = document.getElementById("mainTable");
-        function resizeBanner() {
-          banner.style.height = (table.offsetHeight * 0.2) + "px";
-        }
-        resizeBanner();
-        window.addEventListener("resize", resizeBanner);
       } else {
         banner.style.height = "0px"; // hide if no image
       }
@@ -216,7 +209,7 @@
 
     document.addEventListener("DOMContentLoaded", updatePage);
 
-    // 🔄 Listen for changes from admin.html (localStorage updates)
+    // Auto-refresh when admin.html changes localStorage
     window.addEventListener("storage", () => {
       updatePage();
     });
