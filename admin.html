@@ -104,6 +104,23 @@
       localStorage.setItem("tableHistory", JSON.stringify(archive));
     }
 
+    function renderPigeonInputs() {
+      const config = JSON.parse(localStorage.getItem("tournamentConfig"));
+      const div = document.getElementById("pigeonInputs");
+      div.innerHTML="";
+      if (!config) {
+        div.innerHTML="<em>Please create a tournament first.</em>";
+        return;
+      }
+      for (let i=1;i<=config.pigeons;i++) {
+        const input=document.createElement("input");
+        input.placeholder=`Pigeon ${i} Time`;
+        input.id=`pigeon_${i}`;
+        autoFormatTime(input);
+        div.appendChild(input);
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       autoFormatTime(document.getElementById("uraanTime"));
 
@@ -114,7 +131,9 @@
         localStorage.setItem("tournamentConfig", JSON.stringify({ pigeons }));
         localStorage.setItem("tournamentRows", JSON.stringify([]));
         alert(`New tournament created with ${pigeons} pigeons.`);
-        window.location.reload();
+
+        // Re-render pigeon inputs immediately (no reload required)
+        renderPigeonInputs();
       });
 
       // Page heading
@@ -150,34 +169,22 @@
       });
 
       // Add row
-      function renderPigeonInputs() {
-        const config = JSON.parse(localStorage.getItem("tournamentConfig"));
-        const div = document.getElementById("pigeonInputs");
-        div.innerHTML="";
-        if (!config) return;
-        for (let i=1;i<=config.pigeons;i++) {
-          const input=document.createElement("input");
-          input.placeholder=`Pigeon ${i} Time`;
-          input.id=`pigeon_${i}`;
-          autoFormatTime(input);
-          div.appendChild(input);
-        }
-      }
-      renderPigeonInputs();
-
       document.getElementById("addRowBtn").addEventListener("click", () => {
         const config = JSON.parse(localStorage.getItem("tournamentConfig"));
         if (!config) return alert("No tournament created yet.");
         const name = document.getElementById("rowName").value;
         const times=[];
         for(let i=1;i<=config.pigeons;i++){
-          times.push(document.getElementById("pigeon_${i}".replace("${i}",i)).value);
+          times.push(document.getElementById(`pigeon_${i}`).value);
         }
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
         rows.push({name, times});
         localStorage.setItem("tournamentRows", JSON.stringify(rows));
         alert("Row added");
       });
+
+      // Initial render
+      renderPigeonInputs();
     });
 
     // Login
