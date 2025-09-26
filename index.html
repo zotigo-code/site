@@ -136,7 +136,7 @@
     const lastUpdated = localStorage.getItem("lastUpdated") || "N/A";
 
     // Track the latest entered time
-    let latestTimeCell = null;
+    let latestTime = null;
 
     // Update Stats
     function updateStats() {
@@ -149,19 +149,21 @@
       uraanKaTimeDisplay.textContent = uraanKaTime;
 
       // Find the first and last pigeon landed
-      let firstTime = null, lastTime = null;
+      let firstTime = null;
+      latestTime = null; // Reset latest time tracking
+
       for (let i = 0; i < loftData.length; i++) {
         for (let j = 0; j < loftData[i].length; j++) {
           const time = loftData[i][j];
           if (time) {
             if (!firstTime || time < firstTime) firstTime = time;
-            if (!lastTime || time > lastTime) lastTime = time;
+            if (!latestTime || time > latestTime) latestTime = time;
           }
         }
       }
 
       firstPigeonLanded.textContent = firstTime || "N/A";
-      lastPigeonLanded.textContent = lastTime || "N/A";
+      lastPigeonLanded.textContent = latestTime || "N/A";
       totalPigeonsFlown.textContent = loftData.length * 7; // Total lofts * 7 pigeons per loft
     }
 
@@ -186,7 +188,7 @@
             cell.textContent = time;
 
             // Highlight the latest entered time
-            if (time === latestTimeCell) {
+            if (time === latestTime) {
               cell.classList.add("blink");
             }
 
@@ -231,17 +233,6 @@
 
       // Set the last updated timestamp
       document.getElementById("lastUpdated").textContent = `Last Updated: ${lastUpdated}`;
-
-      // Detect the latest entered time
-      for (let i = loftData.length - 1; i >= 0; i--) {
-        for (let j = loftData[i].length - 1; j >= 0; j--) {
-          if (loftData[i][j]) {
-            latestTimeCell = loftData[i][j];
-            break;
-          }
-        }
-        if (latestTimeCell) break;
-      }
 
       updateStats();
       updateMainTable();
