@@ -87,7 +87,7 @@
       </select>
 
       <label for="timeInput">Time (HH:MM:SS):</label>
-      <input type="text" id="timeInput" placeholder="e.g., 12:34:56">
+      <input type="text" id="timeInput" placeholder="HHMMSS">
 
       <button type="button" id="saveBtn">Save</button>
     </form>
@@ -95,7 +95,7 @@
     <!-- Uraan Ka Time Form -->
     <form id="globalTimeForm">
       <label for="uraanTime">Uraan Ka Time:</label>
-      <input type="text" id="uraanTime" placeholder="e.g., 12:34:56">
+      <input type="text" id="uraanTime" placeholder="HHMMSS">
       <button type="button" id="applyUraanTimeBtn">Apply</button>
     </form>
   </div>
@@ -189,6 +189,24 @@
         const timeRegex = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/; // Matches HH:MM:SS in 24-hour format
         return timeRegex.test(timeStr);
       }
+
+      // Auto-format time input fields as HH:MM:SS while typing
+      function autoFormatTime(input) {
+        input.addEventListener("input", () => {
+          let value = input.value.replace(/\D/g, ""); // Keep only digits
+          if (value.length > 6) value = value.slice(0, 6);
+
+          let formatted = "";
+          if (value.length > 0) formatted = value.slice(0, 2);
+          if (value.length >= 3) formatted += ":" + value.slice(2, 4);
+          if (value.length >= 5) formatted += ":" + value.slice(4, 6);
+
+          input.value = formatted;
+        });
+      }
+
+      autoFormatTime(document.getElementById("timeInput"));
+      autoFormatTime(document.getElementById("uraanTime"));
     });
 
     // Handle Login and Password Setup
