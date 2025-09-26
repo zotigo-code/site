@@ -6,27 +6,24 @@
   <title>Main Table</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Top Image */
     #topImageContainer {
       width: 100%;
-      height: 20vh; /* 20% of page height */
+      height: 20vh;
       overflow: hidden;
       margin-bottom: 10px;
     }
     #topImageContainer img {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* fill area */
+      object-fit: cover;
     }
-
     h1 {
-      background-color: lightblue; /* changed from yellow to light blue */
+      background-color: lightblue;
       text-align: center;
       font-size: 2rem;
       padding: 10px;
       margin-bottom: 20px;
     }
-
     table {
       border-collapse: collapse;
       width: 100%;
@@ -37,13 +34,11 @@
       text-align: center;
       padding: 8px;
       width: 10%;
-      word-wrap: break-word;
     }
     th {
       background-color: lightcoral;
       color: white;
     }
-
     .blink {
       animation: blink-animation 1s infinite alternate;
       background-color: lightgreen;
@@ -52,17 +47,6 @@
       from { background-color: lightgreen; }
       to { background-color: transparent; }
     }
-
-    .table-container {
-      overflow-x: auto;
-      margin-bottom: 20px;
-    }
-
-    @media screen and (max-width: 768px) {
-      table { font-size: 12px; }
-      th, td { padding: 6px; }
-    }
-
     footer {
       position: fixed;
       bottom: 10px;
@@ -73,51 +57,36 @@
   </style>
 </head>
 <body>
-  <!-- Top Image -->
   <div id="topImageContainer"></div>
-
-  <!-- Dynamic Page Heading -->
   <h1 id="pageHeading">Loft Times Table</h1>
 
-  <!-- Stats -->
-  <div id="tableStats" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; margin-bottom:20px;">
+  <div id="tableStats" style="display:flex; justify-content:space-between; margin-bottom:20px;">
     <div>
       <strong>First Pigeon Landed:</strong> <span id="firstPigeonLanded">N/A</span>
       <strong>Last Pigeon Landed:</strong> <span id="lastPigeonLanded">N/A</span>
     </div>
     <div><strong>Total Number of Pigeons:</strong> <span id="totalPigeons">70</span></div>
-    <div><strong>Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span></div>
+    <div><strong>Sab Lofts Ka Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span></div>
   </div>
 
-  <div class="table-container">
-    <table id="mainTable">
-      <thead>
-        <tr>
-          <th>Loft</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <script>
-          for (let i = 1; i <= 10; i++) {
-            document.write(`<tr>
-              <td>Loft ${i}</td>
-              ${'<td></td>'.repeat(7)}
-              <td></td>
-            </tr>`);
-          }
-        </script>
-      </tbody>
-    </table>
-  </div>
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th>Loft</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <footer id="lastUpdated">Last Updated: N/A</footer>
 
   <script>
-    let loftData, uraanKaTime, pageHeading, lastUpdated, latestTime;
+    let loftData, uraanKaTime, perLoftUraanKaTime, pageHeading, lastUpdated, latestTime;
 
     function loadData() {
       loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
       uraanKaTime = localStorage.getItem("uraanKaTime") || "00:00:00";
+      perLoftUraanKaTime = JSON.parse(localStorage.getItem("perLoftUraanKaTime")) || {};
       pageHeading = localStorage.getItem("pageHeading") || "Loft Times Table";
       lastUpdated = localStorage.getItem("lastUpdated") || "N/A";
     }
@@ -147,13 +116,16 @@
     }
 
     function updateMainTable() {
-      const mainTable = document.getElementById("mainTable").getElementsByTagName("tbody")[0];
-      mainTable.innerHTML = "";
+      const tbody = document.getElementById("mainTable").querySelector("tbody");
+      tbody.innerHTML = "";
 
       loftData.forEach((loft, i) => {
         const row = document.createElement("tr");
         const loftCell = document.createElement("td");
-        loftCell.textContent = `Loft ${i + 1}`;
+
+        // Show Loft name + Uraan Ka Time if set
+        let loftTime = perLoftUraanKaTime[i+1] || uraanKaTime;
+        loftCell.innerHTML = `Loft ${i+1}<br><small>Uraan: ${loftTime}</small>`;
         row.appendChild(loftCell);
 
         let totalSeconds = 0;
@@ -162,7 +134,7 @@
           if (time) {
             cell.textContent = time;
             if (time === latestTime) cell.classList.add("blink");
-            totalSeconds += parseTimeInSeconds(time) - parseTimeInSeconds(uraanKaTime);
+            totalSeconds += parseTimeInSeconds(time) - parseTimeInSeconds(loftTime);
           }
           row.appendChild(cell);
         });
@@ -173,7 +145,7 @@
         totalCell.textContent = totalSeconds > 0 ? formatSeconds(totalSeconds) : "";
         row.appendChild(totalCell);
 
-        mainTable.appendChild(row);
+        tbody.appendChild(row);
       });
     }
 
@@ -181,7 +153,6 @@
       const [hh, mm, ss] = timeStr.split(":").map(Number);
       return hh * 3600 + mm * 60 + ss;
     }
-
     function formatSeconds(seconds) {
       const hh = String(Math.floor(seconds / 3600)).padStart(2, "0");
       const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
@@ -196,23 +167,18 @@
       updateStats();
       updateMainTable();
 
-      // Top Image
       const banner = document.getElementById("topImageContainer");
       banner.innerHTML = "";
       const savedImage = localStorage.getItem("topImage");
       if (savedImage) {
         banner.innerHTML = `<img src="${savedImage}" alt="Top Image">`;
       } else {
-        banner.style.height = "0px"; // hide if no image
+        banner.style.height = "0px";
       }
     }
 
     document.addEventListener("DOMContentLoaded", updatePage);
-
-    // Auto-refresh when admin.html changes localStorage
-    window.addEventListener("storage", () => {
-      updatePage();
-    });
+    window.addEventListener("storage", updatePage);
   </script>
 </body>
 </html>
