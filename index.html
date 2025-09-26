@@ -3,129 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Main Table</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Current Tournament</title>
   <style>
-    #topImageContainer { width: 100%; height: 20vh; overflow: hidden; margin-bottom: 10px; }
-    #topImageContainer img { width: 100%; height: 100%; object-fit: cover; }
-    h1 { background-color: lightblue; text-align: center; font-size: 2rem; padding: 10px; margin-bottom: 20px; }
-    table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-    th, td { border: 1px solid #ddd; text-align: center; padding: 8px; width: 10%; }
-    th { background-color: lightcoral; color: white; }
-    .blink { animation: blink-animation 1s infinite alternate; background-color: lightgreen; }
-    @keyframes blink-animation { from { background-color: lightgreen; } to { background-color: transparent; } }
-    footer { position: fixed; bottom: 10px; left: 10px; font-size: 0.9rem; color: grey; }
+    #topImageContainer { width:100%; height:20vh; overflow:hidden; margin-bottom:10px; }
+    #topImageContainer img { width:100%; height:100%; object-fit:cover; }
+    h1 { background:lightblue; text-align:center; font-size:2rem; padding:10px; margin-bottom:20px; position:relative; }
+    #prevBtn { position:absolute; right:10px; top:10px; }
+    table { border-collapse:collapse; width:100%; table-layout:fixed; }
+    th,td { border:1px solid #ddd; padding:8px; text-align:center; }
+    th { background:lightcoral; color:white; }
+    tbody tr:nth-child(even){ background:#f0f8ff; }
   </style>
 </head>
 <body>
   <div id="topImageContainer"></div>
-  <h1 id="pageHeading">Loft Times Table</h1>
+  <h1 id="pageHeading">Tournament <a href="previous.html"><button id="prevBtn">Previous Tournaments</button></a></h1>
 
-  <div id="tableStats" style="display:flex; justify-content:space-between; margin-bottom:20px;">
-    <div>
-      <strong>First Pigeon Landed:</strong> <span id="firstPigeonLanded">N/A</span>
-      <strong>Last Pigeon Landed:</strong> <span id="lastPigeonLanded">N/A</span>
-    </div>
-    <div><strong>Total Number of Pigeons:</strong> <span id="totalPigeons">70</span></div>
-    <div><strong>Sab Lofts Ka Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span></div>
+  <div>
+    <strong>Sab Lofts Ka Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span>
   </div>
 
-  <table id="mainTable">
-    <thead>
-      <tr>
-        <th>Loft</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>Total</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <footer id="lastUpdated">Last Updated: N/A</footer>
+  <table id="mainTable"><thead></thead><tbody></tbody></table>
 
   <script>
-    let loftData, uraanKaTime, perLoftUraanKaTime, pageHeading, lastUpdated, latestTime;
+    function parseTime(t){if(!t)return 0;const [h,m,s]=t.split(":").map(Number);return h*3600+m*60+s;}
+    function fmt(sec){if(sec<=0)return"";const h=String(Math.floor(sec/3600)).padStart(2,"0");const m=String(Math.floor((sec%3600)/60)).padStart(2,"0");const s=String(sec%60).padStart(2,"0");return `${h}:${m}:${s}`;}
 
-    function loadData() {
-      loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
-      uraanKaTime = localStorage.getItem("uraanKaTime") || "00:00:00";
-      perLoftUraanKaTime = JSON.parse(localStorage.getItem("perLoftUraanKaTime")) || {};
-      pageHeading = localStorage.getItem("pageHeading") || "Loft Times Table";
-      lastUpdated = localStorage.getItem("lastUpdated") || "N/A";
-    }
+    function renderTable(){
+      const config=JSON.parse(localStorage.getItem("tournamentConfig"));
+      const rows=JSON.parse(localStorage.getItem("tournamentRows"))||[];
+      const uraan=localStorage.getItem("uraanKaTime")||"00:00:00";
+      const heading=localStorage.getItem("pageHeading")||"Tournament";
+      const image=localStorage.getItem("topImage");
 
-    function updateStats() {
-      document.getElementById("uraanKaTimeDisplay").textContent = uraanKaTime;
-      let firstTime = null; latestTime = null;
-      loftData.forEach(loft => {
-        loft.forEach(time => {
-          if (time) {
-            if (!firstTime || time < firstTime) firstTime = time;
-            if (!latestTime || time > latestTime) latestTime = time;
-          }
-        });
+      document.getElementById("pageHeading").childNodes[0].textContent=heading+" ";
+      document.getElementById("uraanKaTimeDisplay").textContent=uraan;
+      const head=document.querySelector("#mainTable thead");
+      const body=document.querySelector("#mainTable tbody");
+      head.innerHTML=""; body.innerHTML="";
+      if(!config)return;
+
+      let thRow="<tr><th>#</th><th>Name</th>";
+      for(let i=1;i<=config.pigeons;i++) thRow+=`<th>${i}</th>`;
+      thRow+="<th>Total</th></tr>";
+      head.innerHTML=thRow;
+
+      rows.forEach((r,idx)=>{
+        let row=`<tr><td>${idx+1}</td><td>${r.name}</td>`;
+        let total=0;
+        r.times.forEach(t=>{ row+=`<td>${t||""}</td>`; if(t) total+=parseTime(t)-parseTime(uraan); });
+        row+=`<td>${fmt(total)}</td></tr>`;
+        body.innerHTML+=row;
       });
-      document.getElementById("firstPigeonLanded").textContent = firstTime || "N/A";
-      document.getElementById("lastPigeonLanded").textContent = latestTime || "N/A";
-      document.getElementById("totalPigeons").textContent = loftData.length * 7;
+
+      if(image)document.getElementById("topImageContainer").innerHTML=`<img src="${image}">`;
     }
 
-    function updateMainTable() {
-      const tbody = document.querySelector("#mainTable tbody");
-      tbody.innerHTML = "";
-      loftData.forEach((loft, i) => {
-        const row = document.createElement("tr");
-        const loftCell = document.createElement("td");
-
-        // Loft Uraan Time if different from global
-        let loftTime = perLoftUraanKaTime[i+1] || uraanKaTime;
-        loftCell.innerHTML = `Loft ${i+1}`;
-        if (perLoftUraanKaTime[i+1] && perLoftUraanKaTime[i+1] !== uraanKaTime) {
-          loftCell.innerHTML += `<br><small>Uraan: ${perLoftUraanKaTime[i+1]}</small>`;
-        }
-        row.appendChild(loftCell);
-
-        let totalSeconds = 0;
-        loft.forEach(time => {
-          const cell = document.createElement("td");
-          if (time) {
-            cell.textContent = time;
-            if (time === latestTime) cell.classList.add("blink");
-            totalSeconds += parseTimeInSeconds(time) - parseTimeInSeconds(loftTime);
-          }
-          row.appendChild(cell);
-        });
-        for (let j = loft.length; j < 7; j++) row.appendChild(document.createElement("td"));
-
-        const totalCell = document.createElement("td");
-        totalCell.textContent = totalSeconds > 0 ? formatSeconds(totalSeconds) : "";
-        row.appendChild(totalCell);
-
-        tbody.appendChild(row);
-      });
-    }
-
-    function parseTimeInSeconds(t) { const [h,m,s] = t.split(":").map(Number); return h*3600+m*60+s; }
-    function formatSeconds(sec) {
-      const h = String(Math.floor(sec/3600)).padStart(2,"0");
-      const m = String(Math.floor((sec%3600)/60)).padStart(2,"0");
-      const s = String(sec%60).padStart(2,"0");
-      return `${h}:${m}:${s}`;
-    }
-
-    function updatePage() {
-      loadData();
-      document.getElementById("pageHeading").textContent = pageHeading;
-      document.getElementById("lastUpdated").textContent = `Last Updated: ${lastUpdated}`;
-      updateStats();
-      updateMainTable();
-      const banner = document.getElementById("topImageContainer");
-      banner.innerHTML = "";
-      const savedImage = localStorage.getItem("topImage");
-      if (savedImage) banner.innerHTML = `<img src="${savedImage}" alt="Top Image">`;
-      else banner.style.height = "0px";
-    }
-
-    document.addEventListener("DOMContentLoaded", updatePage);
-    window.addEventListener("storage", updatePage);
+    document.addEventListener("DOMContentLoaded", renderTable);
+    window.addEventListener("storage", renderTable);
   </script>
 </body>
 </html>
