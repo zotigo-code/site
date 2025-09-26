@@ -6,7 +6,30 @@
   <title>Main Table</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Add styles for the table header */
+    /* Add styling for the heading */
+    h1 {
+      background-color: lightyellow;
+      text-align: center;
+      font-size: 2rem;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* Responsive Table Styling */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed; /* Ensures equal size for all cells */
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      text-align: center;
+      padding: 8px;
+      width: 10%; /* Ensure equal width for all cells */
+      word-wrap: break-word; /* Prevent text overflow */
+    }
+
     th {
       background-color: lightcoral; /* Light red background */
       color: white;
@@ -26,13 +49,39 @@
         background-color: transparent;
       }
     }
+
+    /* Responsive Design: Table Scroll for Small Screens */
+    .table-container {
+      overflow-x: auto; /* Allow horizontal scrolling */
+      margin-bottom: 20px;
+    }
+
+    /* Mobile View */
+    @media screen and (max-width: 768px) {
+      table {
+        font-size: 12px; /* Reduce font size for smaller screens */
+      }
+      th, td {
+        padding: 6px; /* Reduce padding */
+      }
+    }
+
+    /* Footer Styling */
+    footer {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      font-size: 0.9rem;
+      color: grey;
+    }
   </style>
 </head>
 <body>
-  <h1>Loft Times Table</h1>
+  <!-- Dynamic Page Heading -->
+  <h1 id="pageHeading">Loft Times Table</h1>
 
   <!-- Values Above the Table -->
-  <div id="tableStats" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+  <div id="tableStats" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div>
       <strong>First Pigeon Landed:</strong> <span id="firstPigeonLanded">N/A</span>
       <strong>Last Pigeon Landed:</strong> <span id="lastPigeonLanded">N/A</span>
@@ -45,39 +94,46 @@
     </div>
   </div>
 
-  <!-- Main Table -->
-  <table id="mainTable">
-    <thead>
-      <tr>
-        <th>Loft</th>
-        <th>1</th>
-        <th>2</th>
-        <th>3</th>
-        <th>4</th>
-        <th>5</th>
-        <th>6</th>
-        <th>7</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- 10 Empty Rows -->
-      <script>
-        for (let i = 1; i <= 10; i++) {
-          document.write(`<tr>
-            <td>Loft ${i}</td>
-            ${'<td></td>'.repeat(7)}
-            <td></td>
-          </tr>`);
-        }
-      </script>
-    </tbody>
-  </table>
+  <!-- Table Container for Responsiveness -->
+  <div class="table-container">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th>Loft</th>
+          <th>1</th>
+          <th>2</th>
+          <th>3</th>
+          <th>4</th>
+          <th>5</th>
+          <th>6</th>
+          <th>7</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 10 Empty Rows -->
+        <script>
+          for (let i = 1; i <= 10; i++) {
+            document.write(`<tr>
+              <td>Loft ${i}</td>
+              ${'<td></td>'.repeat(7)}
+              <td></td>
+            </tr>`);
+          }
+        </script>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <footer id="lastUpdated">Last Updated: N/A</footer>
 
   <script>
-    // Load loft data and uraan ka time from localStorage
+    // Load loft data, Uraan Ka Time, and page heading from localStorage
     const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
     const uraanKaTime = localStorage.getItem("uraanKaTime") || "00:00:00";
+    const pageHeading = localStorage.getItem("pageHeading") || "Loft Times Table";
+    const lastUpdated = localStorage.getItem("lastUpdated") || "N/A";
 
     // Track the latest entered time
     let latestTimeCell = null;
@@ -170,6 +226,12 @@
 
     // Load data on page load
     document.addEventListener("DOMContentLoaded", () => {
+      // Set the page heading
+      document.getElementById("pageHeading").textContent = pageHeading;
+
+      // Set the last updated timestamp
+      document.getElementById("lastUpdated").textContent = `Last Updated: ${lastUpdated}`;
+
       // Detect the latest entered time
       for (let i = loftData.length - 1; i >= 0; i--) {
         for (let j = loftData[i].length - 1; j >= 0; j--) {
