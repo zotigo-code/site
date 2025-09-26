@@ -1,32 +1,50 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-}
+<style>
+  #topImageContainer { width: 100%; height: 20vh; overflow: hidden; margin-bottom: 10px; }
+  #topImageContainer img { width: 100%; height: 100%; object-fit: cover; }
 
-h1, h2 {
-  text-align: centre;
-}
+  h1 {
+    background-color: lightblue;
+    text-align: center;
+    font-size: 2rem;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    text-align: center;
+    padding: 8px;
+    width: 10%;
+  }
+  th {
+    background-color: lightcoral;
+    color: white;
+  }
 
-table, th, td {
-  border: 1px solid black;
-}
+  /* ✅ Alternate row coloring */
+  tbody tr:nth-child(even) {
+    background-color: #f0f8ff; /* very light blue */
+  }
 
-th, td {
-  padding: 10px;
-  text-align: centre;
-}
+  .blink {
+    animation: blink-animation 1s infinite alternate;
+    background-color: lightgreen;
+  }
+  @keyframes blink-animation {
+    from { background-color: lightgreen; }
+    to { background-color: transparent; }
+  }
 
-input, select, button {
-  margin: 10px 0;
-  padding: 8px;
-}
-
-button {
-  cursor: pointer;
-}
+  footer {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 0.9rem;
+    color: grey;
+  }
+</style>
