@@ -6,54 +6,15 @@
   <title>Main Table</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    #topImageContainer {
-      width: 100%;
-      height: 20vh;
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-    #topImageContainer img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    h1 {
-      background-color: lightblue;
-      text-align: center;
-      font-size: 2rem;
-      padding: 10px;
-      margin-bottom: 20px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      table-layout: fixed;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      text-align: center;
-      padding: 8px;
-      width: 10%;
-    }
-    th {
-      background-color: lightcoral;
-      color: white;
-    }
-    .blink {
-      animation: blink-animation 1s infinite alternate;
-      background-color: lightgreen;
-    }
-    @keyframes blink-animation {
-      from { background-color: lightgreen; }
-      to { background-color: transparent; }
-    }
-    footer {
-      position: fixed;
-      bottom: 10px;
-      left: 10px;
-      font-size: 0.9rem;
-      color: grey;
-    }
+    #topImageContainer { width: 100%; height: 20vh; overflow: hidden; margin-bottom: 10px; }
+    #topImageContainer img { width: 100%; height: 100%; object-fit: cover; }
+    h1 { background-color: lightblue; text-align: center; font-size: 2rem; padding: 10px; margin-bottom: 20px; }
+    table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+    th, td { border: 1px solid #ddd; text-align: center; padding: 8px; width: 10%; }
+    th { background-color: lightcoral; color: white; }
+    .blink { animation: blink-animation 1s infinite alternate; background-color: lightgreen; }
+    @keyframes blink-animation { from { background-color: lightgreen; } to { background-color: transparent; } }
+    footer { position: fixed; bottom: 10px; left: 10px; font-size: 0.9rem; color: grey; }
   </style>
 </head>
 <body>
@@ -92,44 +53,38 @@
     }
 
     function updateStats() {
-      const firstPigeonLanded = document.getElementById("firstPigeonLanded");
-      const lastPigeonLanded = document.getElementById("lastPigeonLanded");
-      const uraanKaTimeDisplay = document.getElementById("uraanKaTimeDisplay");
-      const totalPigeons = document.getElementById("totalPigeons");
-
-      uraanKaTimeDisplay.textContent = uraanKaTime;
+      document.getElementById("uraanKaTimeDisplay").textContent = uraanKaTime;
       let firstTime = null; latestTime = null;
-
-      for (let i = 0; i < loftData.length; i++) {
-        for (let j = 0; j < loftData[i].length; j++) {
-          const time = loftData[i][j];
+      loftData.forEach(loft => {
+        loft.forEach(time => {
           if (time) {
             if (!firstTime || time < firstTime) firstTime = time;
             if (!latestTime || time > latestTime) latestTime = time;
           }
-        }
-      }
-
-      firstPigeonLanded.textContent = firstTime || "N/A";
-      lastPigeonLanded.textContent = latestTime || "N/A";
-      totalPigeons.textContent = loftData.length * 7;
+        });
+      });
+      document.getElementById("firstPigeonLanded").textContent = firstTime || "N/A";
+      document.getElementById("lastPigeonLanded").textContent = latestTime || "N/A";
+      document.getElementById("totalPigeons").textContent = loftData.length * 7;
     }
 
     function updateMainTable() {
-      const tbody = document.getElementById("mainTable").querySelector("tbody");
+      const tbody = document.querySelector("#mainTable tbody");
       tbody.innerHTML = "";
-
       loftData.forEach((loft, i) => {
         const row = document.createElement("tr");
         const loftCell = document.createElement("td");
 
-        // Show Loft name + Uraan Ka Time if set
+        // Loft Uraan Time if different from global
         let loftTime = perLoftUraanKaTime[i+1] || uraanKaTime;
-        loftCell.innerHTML = `Loft ${i+1}<br><small>Uraan: ${loftTime}</small>`;
+        loftCell.innerHTML = `Loft ${i+1}`;
+        if (perLoftUraanKaTime[i+1] && perLoftUraanKaTime[i+1] !== uraanKaTime) {
+          loftCell.innerHTML += `<br><small>Uraan: ${perLoftUraanKaTime[i+1]}</small>`;
+        }
         row.appendChild(loftCell);
 
         let totalSeconds = 0;
-        loft.forEach((time) => {
+        loft.forEach(time => {
           const cell = document.createElement("td");
           if (time) {
             cell.textContent = time;
@@ -138,7 +93,6 @@
           }
           row.appendChild(cell);
         });
-
         for (let j = loft.length; j < 7; j++) row.appendChild(document.createElement("td"));
 
         const totalCell = document.createElement("td");
@@ -149,15 +103,12 @@
       });
     }
 
-    function parseTimeInSeconds(timeStr) {
-      const [hh, mm, ss] = timeStr.split(":").map(Number);
-      return hh * 3600 + mm * 60 + ss;
-    }
-    function formatSeconds(seconds) {
-      const hh = String(Math.floor(seconds / 3600)).padStart(2, "0");
-      const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
-      const ss = String(seconds % 60).padStart(2, "0");
-      return `${hh}:${mm}:${ss}`;
+    function parseTimeInSeconds(t) { const [h,m,s] = t.split(":").map(Number); return h*3600+m*60+s; }
+    function formatSeconds(sec) {
+      const h = String(Math.floor(sec/3600)).padStart(2,"0");
+      const m = String(Math.floor((sec%3600)/60)).padStart(2,"0");
+      const s = String(sec%60).padStart(2,"0");
+      return `${h}:${m}:${s}`;
     }
 
     function updatePage() {
@@ -166,15 +117,11 @@
       document.getElementById("lastUpdated").textContent = `Last Updated: ${lastUpdated}`;
       updateStats();
       updateMainTable();
-
       const banner = document.getElementById("topImageContainer");
       banner.innerHTML = "";
       const savedImage = localStorage.getItem("topImage");
-      if (savedImage) {
-        banner.innerHTML = `<img src="${savedImage}" alt="Top Image">`;
-      } else {
-        banner.style.height = "0px";
-      }
+      if (savedImage) banner.innerHTML = `<img src="${savedImage}" alt="Top Image">`;
+      else banner.style.height = "0px";
     }
 
     document.addEventListener("DOMContentLoaded", updatePage);
