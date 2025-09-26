@@ -6,7 +6,23 @@
   <title>Main Table</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Add styling for the heading */
+    /* Top Image */
+    #topImageContainer {
+      width: 100%;
+      height: 10vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    #topImageContainer img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+    }
+
     h1 {
       background-color: lightyellow;
       text-align: center;
@@ -15,58 +31,42 @@
       margin-bottom: 20px;
     }
 
-    /* Responsive Table Styling */
     table {
       border-collapse: collapse;
       width: 100%;
-      table-layout: fixed; /* Ensures equal size for all cells */
+      table-layout: fixed;
     }
-
     th, td {
       border: 1px solid #ddd;
       text-align: center;
       padding: 8px;
-      width: 10%; /* Ensure equal width for all cells */
-      word-wrap: break-word; /* Prevent text overflow */
+      width: 10%;
+      word-wrap: break-word;
     }
-
     th {
-      background-color: lightcoral; /* Light red background */
+      background-color: lightcoral;
       color: white;
     }
 
-    /* Blinking effect for the latest entered time */
     .blink {
       animation: blink-animation 1s infinite alternate;
-      background-color: lightgreen; /* Light green background */
+      background-color: lightgreen;
     }
-
     @keyframes blink-animation {
-      from {
-        background-color: lightgreen;
-      }
-      to {
-        background-color: transparent;
-      }
+      from { background-color: lightgreen; }
+      to { background-color: transparent; }
     }
 
-    /* Responsive Design: Table Scroll for Small Screens */
     .table-container {
-      overflow-x: auto; /* Allow horizontal scrolling */
+      overflow-x: auto;
       margin-bottom: 20px;
     }
 
-    /* Mobile View */
     @media screen and (max-width: 768px) {
-      table {
-        font-size: 12px; /* Reduce font size for smaller screens */
-      }
-      th, td {
-        padding: 6px; /* Reduce padding */
-      }
+      table { font-size: 12px; }
+      th, td { padding: 6px; }
     }
 
-    /* Footer Styling */
     footer {
       position: fixed;
       bottom: 10px;
@@ -77,41 +77,30 @@
   </style>
 </head>
 <body>
+  <!-- Top Image -->
+  <div id="topImageContainer"></div>
+
   <!-- Dynamic Page Heading -->
   <h1 id="pageHeading">Loft Times Table</h1>
 
-  <!-- Values Above the Table -->
-  <div id="tableStats" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+  <!-- Stats -->
+  <div id="tableStats" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; margin-bottom:20px;">
     <div>
       <strong>First Pigeon Landed:</strong> <span id="firstPigeonLanded">N/A</span>
       <strong>Last Pigeon Landed:</strong> <span id="lastPigeonLanded">N/A</span>
     </div>
-    <div>
-      <strong>Total Number of Pigeons:</strong> <span id="totalPigeonsFlown">70</span>
-    </div>
-    <div>
-      <strong>Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span>
-    </div>
+    <div><strong>Total Number of Pigeons Flown:</strong> <span id="totalPigeonsFlown">70</span></div>
+    <div><strong>Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span></div>
   </div>
 
-  <!-- Table Container for Responsiveness -->
   <div class="table-container">
     <table id="mainTable">
       <thead>
         <tr>
-          <th>Loft</th>
-          <th>1</th>
-          <th>2</th>
-          <th>3</th>
-          <th>4</th>
-          <th>5</th>
-          <th>6</th>
-          <th>7</th>
-          <th>Total</th>
+          <th>Loft</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>Total</th>
         </tr>
       </thead>
       <tbody>
-        <!-- 10 Empty Rows -->
         <script>
           for (let i = 1; i <= 10; i++) {
             document.write(`<tr>
@@ -125,33 +114,22 @@
     </table>
   </div>
 
-  <!-- Footer -->
   <footer id="lastUpdated">Last Updated: N/A</footer>
 
   <script>
-    // Load loft data, Uraan Ka Time, and page heading from localStorage
     const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
     const uraanKaTime = localStorage.getItem("uraanKaTime") || "00:00:00";
     const pageHeading = localStorage.getItem("pageHeading") || "Loft Times Table";
     const lastUpdated = localStorage.getItem("lastUpdated") || "N/A";
-
-    // Track the latest entered time
     let latestTime = null;
 
-    // Update Stats
     function updateStats() {
       const firstPigeonLanded = document.getElementById("firstPigeonLanded");
       const lastPigeonLanded = document.getElementById("lastPigeonLanded");
       const uraanKaTimeDisplay = document.getElementById("uraanKaTimeDisplay");
       const totalPigeonsFlown = document.getElementById("totalPigeonsFlown");
-
-      // Set Uraan Ka Time
       uraanKaTimeDisplay.textContent = uraanKaTime;
-
-      // Find the first and last pigeon landed
-      let firstTime = null;
-      latestTime = null; // Reset latest time tracking
-
+      let firstTime = null; latestTime = null;
       for (let i = 0; i < loftData.length; i++) {
         for (let j = 0; j < loftData[i].length; j++) {
           const time = loftData[i][j];
@@ -161,64 +139,41 @@
           }
         }
       }
-
       firstPigeonLanded.textContent = firstTime || "N/A";
       lastPigeonLanded.textContent = latestTime || "N/A";
-      totalPigeonsFlown.textContent = loftData.length * 7; // Total lofts * 7 pigeons per loft
+      totalPigeonsFlown.textContent = loftData.length * 7;
     }
 
-    // Update Main Table
     function updateMainTable() {
       const mainTable = document.getElementById("mainTable").getElementsByTagName("tbody")[0];
-
-      // Clear existing table rows
       mainTable.innerHTML = "";
-
-      // Populate table with data
       loftData.forEach((loft, i) => {
         const row = document.createElement("tr");
         const loftCell = document.createElement("td");
         loftCell.textContent = `Loft ${i + 1}`;
         row.appendChild(loftCell);
-
         let totalSeconds = 0;
-        loft.forEach((time, j) => {
+        loft.forEach((time) => {
           const cell = document.createElement("td");
           if (time) {
             cell.textContent = time;
-
-            // Highlight the latest entered time
-            if (time === latestTime) {
-              cell.classList.add("blink");
-            }
-
+            if (time === latestTime) cell.classList.add("blink");
             totalSeconds += parseTimeInSeconds(time) - parseTimeInSeconds(uraanKaTime);
           }
           row.appendChild(cell);
         });
-
-        // Add empty cells for missing times
-        for (let j = loft.length; j < 7; j++) {
-          const cell = document.createElement("td");
-          row.appendChild(cell);
-        }
-
-        // Add total column
+        for (let j = loft.length; j < 7; j++) row.appendChild(document.createElement("td"));
         const totalCell = document.createElement("td");
         totalCell.textContent = totalSeconds > 0 ? formatSeconds(totalSeconds) : "";
         row.appendChild(totalCell);
-
         mainTable.appendChild(row);
       });
     }
 
-    // Helper: Parse time in HH:MM:SS to seconds
     function parseTimeInSeconds(timeStr) {
       const [hh, mm, ss] = timeStr.split(":").map(Number);
       return hh * 3600 + mm * 60 + ss;
     }
-
-    // Helper: Format seconds to HH:MM:SS
     function formatSeconds(seconds) {
       const hh = String(Math.floor(seconds / 3600)).padStart(2, "0");
       const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
@@ -226,16 +181,16 @@
       return `${hh}:${mm}:${ss}`;
     }
 
-    // Load data on page load
     document.addEventListener("DOMContentLoaded", () => {
-      // Set the page heading
       document.getElementById("pageHeading").textContent = pageHeading;
-
-      // Set the last updated timestamp
       document.getElementById("lastUpdated").textContent = `Last Updated: ${lastUpdated}`;
-
       updateStats();
       updateMainTable();
+      const savedImage = localStorage.getItem("topImage");
+      if (savedImage) {
+        document.getElementById("topImageContainer").innerHTML =
+          `<img src="${savedImage}" alt="Top Image">`;
+      }
     });
   </script>
 </body>
