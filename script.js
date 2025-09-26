@@ -1,7 +1,7 @@
 // Shared State
 const mainTable = document.getElementById("mainTable")?.getElementsByTagName("tbody")[0];
 let adminPassword = localStorage.getItem("adminPassword") || "";
-let loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill("")); // Load from localStorage or initialise empty data
+let loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill("")); // Load saved data or initialise empty
 
 // Admin Page Script
 if (document.getElementById("loginSection")) {
