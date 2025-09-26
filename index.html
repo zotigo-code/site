@@ -5,6 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Main Table</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Add styles for the table header */
+    th {
+      background-color: lightcoral; /* Light red background */
+      color: white;
+    }
+
+    /* Blinking effect for the latest entered time */
+    .blink {
+      animation: blink-animation 1s infinite alternate;
+      background-color: lightgreen; /* Light green background */
+    }
+
+    @keyframes blink-animation {
+      from {
+        background-color: lightgreen;
+      }
+      to {
+        background-color: transparent;
+      }
+    }
+  </style>
 </head>
 <body>
   <h1>Loft Times Table</h1>
@@ -28,13 +50,13 @@
     <thead>
       <tr>
         <th>Loft</th>
-        <th>Time 1</th>
-        <th>Time 2</th>
-        <th>Time 3</th>
-        <th>Time 4</th>
-        <th>Time 5</th>
-        <th>Time 6</th>
-        <th>Time 7</th>
+        <th>1</th>
+        <th>2</th>
+        <th>3</th>
+        <th>4</th>
+        <th>5</th>
+        <th>6</th>
+        <th>7</th>
         <th>Total</th>
       </tr>
     </thead>
@@ -56,6 +78,9 @@
     // Load loft data and uraan ka time from localStorage
     const loftData = JSON.parse(localStorage.getItem("loftData")) || Array(10).fill(null).map(() => Array(7).fill(""));
     const uraanKaTime = localStorage.getItem("uraanKaTime") || "00:00:00";
+
+    // Track the latest entered time
+    let latestTimeCell = null;
 
     // Update Stats
     function updateStats() {
@@ -81,8 +106,6 @@
 
       firstPigeonLanded.textContent = firstTime || "N/A";
       lastPigeonLanded.textContent = lastTime || "N/A";
-
-      // Set Total Pigeons Flown
       totalPigeonsFlown.textContent = loftData.length * 7; // Total lofts * 7 pigeons per loft
     }
 
@@ -105,6 +128,12 @@
           const cell = document.createElement("td");
           if (time) {
             cell.textContent = time;
+
+            // Highlight the latest entered time
+            if (time === latestTimeCell) {
+              cell.classList.add("blink");
+            }
+
             totalSeconds += parseTimeInSeconds(time) - parseTimeInSeconds(uraanKaTime);
           }
           row.appendChild(cell);
@@ -141,6 +170,17 @@
 
     // Load data on page load
     document.addEventListener("DOMContentLoaded", () => {
+      // Detect the latest entered time
+      for (let i = loftData.length - 1; i >= 0; i--) {
+        for (let j = loftData[i].length - 1; j >= 0; j--) {
+          if (loftData[i][j]) {
+            latestTimeCell = loftData[i][j];
+            break;
+          }
+        }
+        if (latestTimeCell) break;
+      }
+
       updateStats();
       updateMainTable();
     });
