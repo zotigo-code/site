@@ -1,72 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel</title>
   <style>
-    body { font-family: Arial, sans-serif; padding:20px; }
-    .hidden { display:none; }
+    body { font-family: Arial, sans-serif; margin:20px; }
+    h1 { margin-bottom:10px; }
+    .section { border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:8px; }
+    .section h2 { margin-top:0; }
     label { display:block; margin-top:10px; }
-    input, select, button { margin:5px 0; padding:5px; }
+    input, select, button { margin-top:5px; padding:5px; }
+    .hidden { display:none; }
   </style>
 </head>
 <body>
   <!-- Login Section -->
-  <div id="loginSection">
-    <h2>Admin Login</h2>
+  <div id="loginSection" class="section">
+    <h1>Admin Login</h1>
     <label for="adminPassword">Password:</label>
     <input type="password" id="adminPassword">
+    <br>
     <button id="loginBtn">Login</button>
     <button id="setPasswordBtn">Set Password</button>
   </div>
 
-  <!-- Admin Form Section -->
+  <!-- Main Admin Section -->
   <div id="formSection" class="hidden">
-    <h2>Admin Panel</h2>
+    <h1>Admin Panel</h1>
 
-    <h3>Create Tournament</h3>
-    <label>Number of Pigeons:<input type="number" id="pigeonCount"></label>
-    <button id="createTournamentBtn">Create Tournament</button>
+    <div class="section">
+      <h2>Create Tournament</h2>
+      <label>Number of Pigeons:<input type="number" id="pigeonCount"></label>
+      <button id="createTournamentBtn">Create Tournament</button>
+    </div>
 
-    <h3>Set Page Heading</h3>
-    <input type="text" id="pageHeadingInput" placeholder="Enter page heading">
-    <button id="setPageHeadingBtn">Save Heading</button>
-    <button id="removePageHeadingBtn">Remove Heading</button>
+    <div class="section">
+      <h2>Page Heading</h2>
+      <input type="text" id="pageHeadingInput" placeholder="Enter page heading">
+      <br>
+      <button id="setPageHeadingBtn">Save Heading</button>
+      <button id="removePageHeadingBtn">Remove Heading</button>
+    </div>
 
-    <h3>Upload Top Image</h3>
-    <input type="file" id="imageUpload" accept="image/*">
-    <button id="setImageBtn">Save Image</button>
-    <button id="removeImageBtn">Remove Image</button>
+    <div class="section">
+      <h2>Top Banner Image</h2>
+      <input type="file" id="imageUpload" accept="image/*">
+      <br>
+      <button id="setImageBtn">Save Image</button>
+      <button id="removeImageBtn">Remove Image</button>
+    </div>
 
-    <h3>Set Sab Lofts Ka Uraan Ka Time</h3>
-    <input type="text" id="uraanKaTime" placeholder="HH:MM:SS">
-    <button id="applyUraanTimeBtn">Apply</button>
+    <div class="section">
+      <h2>Sab Lofts Ka Uraan Ka Time</h2>
+      <input type="text" id="uraanKaTime" placeholder="HH:MM:SS">
+      <br>
+      <button id="applyUraanTimeBtn">Apply</button>
+    </div>
 
-    <h3>Add Row</h3>
-    <label>Name:<input type="text" id="rowName"></label>
-    <button id="addRowBtn">Add Row</button>
+    <div class="section">
+      <h2>Add New Loft</h2>
+      <label>Name:<input type="text" id="rowName"></label>
+      <button id="addRowBtn">Add Row</button>
+    </div>
 
-    <h3>Save Pigeon Time</h3>
-    <label for="nameSelect">Name:</label>
-    <select id="nameSelect"></select>
+    <div class="section">
+      <h2>Save Pigeon Time</h2>
+      <label for="nameSelect">Name:</label>
+      <select id="nameSelect"></select>
 
-    <label for="pigeonNumber">Pigeon #:</label>
-    <select id="pigeonNumber"></select>
+      <label for="pigeonNumber">Pigeon #:</label>
+      <select id="pigeonNumber"></select>
 
-    <label for="timeInput">Pigeon Time:</label>
-    <input type="text" id="timeInput" placeholder="HH:MM:SS">
-    <button id="saveBtn">Save Time</button>
+      <label for="timeInput">Pigeon Time (HH:MM:SS):</label>
+      <input type="text" id="timeInput" placeholder="HH:MM:SS">
+      <br>
+      <button id="saveBtn">Save Time</button>
+    </div>
 
-    <h3>Set Uraan Ka Time for Name</h3>
-    <label for="uraanTimeByName">Uraan Ka Time (HH:MM:SS):</label>
-    <input type="text" id="uraanTimeByName">
-    <button id="applyUraanTimeByNameBtn">Apply for Name</button>
+    <div class="section">
+      <h2>Set Uraan Ka Time for Individual Loft</h2>
+      <label for="uraanTimeByName">Uraan Ka Time (HH:MM:SS):</label>
+      <input type="text" id="uraanTimeByName">
+      <br>
+      <button id="applyUraanTimeByNameBtn">Apply for Name</button>
+    </div>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // Auto format time fields
+      // --- Helpers ---
       function autoFormatTime(input){
         input.addEventListener("input", ()=>{
           let v=input.value.replace(/\D/g,"").slice(0,6);
@@ -79,7 +102,7 @@
       autoFormatTime(document.getElementById("timeInput"));
       autoFormatTime(document.getElementById("uraanTimeByName"));
 
-      // Tournament create
+      // --- Tournament creation ---
       document.getElementById("createTournamentBtn").addEventListener("click", () => {
         archiveCurrentTournament();
         const pigeons = parseInt(document.getElementById("pigeonCount").value);
@@ -89,7 +112,7 @@
         renderNameDropdown();
       });
 
-      // Page heading
+      // --- Page heading ---
       document.getElementById("setPageHeadingBtn").addEventListener("click", () => {
         localStorage.setItem("pageHeading", document.getElementById("pageHeadingInput").value);
         alert("Heading updated");
@@ -99,7 +122,7 @@
         alert("Heading removed");
       });
 
-      // Image
+      // --- Banner image ---
       document.getElementById("setImageBtn").addEventListener("click", () => {
         const f = document.getElementById("imageUpload").files[0];
         if (!f) return alert("No file selected");
@@ -115,18 +138,17 @@
         alert("Image removed");
       });
 
-      // Global Uraan ka Time
+      // --- Global Uraan Ka Time ---
       document.getElementById("applyUraanTimeBtn").addEventListener("click", () => {
         localStorage.setItem("uraanKaTime", document.getElementById("uraanKaTime").value);
         alert("Sab Lofts Ka Uraan Ka Time set");
       });
 
-      // Add row
+      // --- Add Row ---
       document.getElementById("addRowBtn").addEventListener("click", () => {
         const config = JSON.parse(localStorage.getItem("tournamentConfig"));
         if (!config) return alert("No tournament created yet.");
-        const nameInput = document.getElementById("rowName");
-        const name = nameInput.value.trim();
+        const name = document.getElementById("rowName").value.trim();
         if (!name) return alert("Please enter a name.");
 
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
@@ -134,11 +156,11 @@
         localStorage.setItem("tournamentRows", JSON.stringify(rows));
 
         alert("Row added");
-        nameInput.value = "";
+        document.getElementById("rowName").value = "";
         renderNameDropdown();
       });
 
-      // Populate dropdowns
+      // --- Dropdowns ---
       function renderNameDropdown() {
         const nameSelect = document.getElementById("nameSelect");
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
@@ -148,7 +170,6 @@
         });
         if (rows.length > 0) updatePigeonDropdown(0);
       }
-
       function updatePigeonDropdown(rowIndex) {
         const config = JSON.parse(localStorage.getItem("tournamentConfig"));
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
@@ -159,19 +180,18 @@
           pigeonDropdown.add(new Option(t ? `Pigeon ${i+1} (Filled)` : `Pigeon ${i+1}`, i));
         });
       }
-
       document.getElementById("nameSelect").addEventListener("change", (e) => {
         updatePigeonDropdown(e.target.value);
       });
 
-      // Save time
+      // --- Save Pigeon Time ---
       document.getElementById("saveBtn").addEventListener("click", () => {
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
         const rowIdx = document.getElementById("nameSelect").value;
         const pigeonIdx = document.getElementById("pigeonNumber").value;
         const time = document.getElementById("timeInput").value;
 
-        if (!/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(time)) 
+        if (!/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(time))
           return alert("Invalid format. Use HH:MM:SS");
 
         rows[rowIdx].times[pigeonIdx] = time;
@@ -182,13 +202,13 @@
         updatePigeonDropdown(rowIdx);
       });
 
-      // ✅ Per-name Uraan Ka Time
+      // --- Per-name Uraan Ka Time ---
       document.getElementById("applyUraanTimeByNameBtn").addEventListener("click", () => {
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
         const rowIdx = document.getElementById("nameSelect").value;
         const uraanTime = document.getElementById("uraanTimeByName").value;
 
-        if (!/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(uraanTime)) 
+        if (!/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(uraanTime))
           return alert("Invalid format. Use HH:MM:SS");
 
         rows[rowIdx].uraanTimeByName = uraanTime;
@@ -197,11 +217,10 @@
         document.getElementById("uraanTimeByName").value = "";
       });
 
-      // Initial load
       renderNameDropdown();
     });
 
-    // ✅ Secure login
+    // --- Secure Login ---
     document.addEventListener("DOMContentLoaded", () => {
       const savedPass = localStorage.getItem("adminPassword");
       if (savedPass) {
@@ -226,7 +245,7 @@
       });
     });
 
-    // Archive tournaments
+    // --- Archive tournaments ---
     function archiveCurrentTournament() {
       const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
       const config = localStorage.getItem("tournamentConfig");
