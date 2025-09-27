@@ -87,7 +87,7 @@
     </form>
 
     <!-- NEW: Per-name Uraan Ka Time -->
-    <form>
+    <form id="uraanByNameForm">
       <label for="uraanTimeByName">Set Uraan Ka Time for Selected Name:</label>
       <input type="text" id="uraanTimeByName" placeholder="HHMMSS">
       <button type="button" id="applyUraanTimeByNameBtn">Apply for Selected Name</button>
@@ -127,6 +127,9 @@
       autoFormatTime(document.getElementById("uraanTime"));
       autoFormatTime(document.getElementById("timeInput"));
       autoFormatTime(document.getElementById("uraanTimeByName"));
+
+      // Autofocus password input on load
+      document.getElementById("adminPassword").focus();
 
       // Tournament create
       document.getElementById("createTournamentBtn").addEventListener("click", () => {
@@ -214,7 +217,7 @@
       });
 
       // Save time
-      document.getElementById("saveBtn").addEventListener("click", () => {
+      function saveTime() {
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
         const rowIdx = document.getElementById("nameSelect").value;
         const pigeonIdx = document.getElementById("pigeonNumber").value;
@@ -230,10 +233,18 @@
         alert("Time saved!");
         timeInput.value = "";
         updatePigeonDropdown(rowIdx);
+      }
+
+      document.getElementById("saveBtn").addEventListener("click", saveTime);
+      document.getElementById("timeInput").addEventListener("keypress", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          saveTime();
+        }
       });
 
       // Per-name Uraan Ka Time
-      document.getElementById("applyUraanTimeByNameBtn").addEventListener("click", () => {
+      function saveUraanByName() {
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
         const rowIdx = document.getElementById("nameSelect").value;
         const uraanTime = document.getElementById("uraanTimeByName").value;
@@ -245,6 +256,14 @@
         localStorage.setItem("tournamentRows", JSON.stringify(rows));
         alert("Uraan Ka Time saved for " + rows[rowIdx].name);
         document.getElementById("uraanTimeByName").value = "";
+      }
+
+      document.getElementById("applyUraanTimeByNameBtn").addEventListener("click", saveUraanByName);
+      document.getElementById("uraanTimeByName").addEventListener("keypress", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          saveUraanByName();
+        }
       });
 
       // Initial load
@@ -266,16 +285,24 @@
       if (!pwd) return alert("Enter password");
       localStorage.setItem("adminPassword", pwd);
       alert("Password set. Please login.");
-      document.getElementById("setPasswordBtn").style.display = "none"; // ✅ hide after set
+      document.getElementById("setPasswordBtn").style.display = "none";
     });
 
-    document.getElementById("loginBtn").addEventListener("click", () => {
+    function login() {
       const entered=document.getElementById("adminPassword").value;
       const stored=localStorage.getItem("adminPassword");
       if (entered===stored) {
         document.getElementById("loginSection").style.display="none";
         document.getElementById("formSection").style.display="block";
       } else alert("Incorrect password");
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", login);
+    document.getElementById("adminPassword").addEventListener("keypress", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        login();
+      }
     });
   </script>
 </body>
