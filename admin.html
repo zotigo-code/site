@@ -14,62 +14,65 @@
     <button id="setPasswordBtn">Set Password</button>
   </div>
 
-  <div id="adminSection" style="display:none;">
+  <div id="formSection" style="display:none;">
     <h1>Admin Panel</h1>
 
-    <fieldset>
-      <legend>Create Tournament</legend>
-      <label for="pigeonCount">Number of Pigeons:</label>
-      <input type="number" id="pigeonCount">
-      <button id="createTournamentBtn">Create Tournament</button>
-    </fieldset>
+    <div class="controls">
+      <fieldset>
+        <legend>Create Tournament</legend>
+        <label for="pigeonCount">Number of Pigeons:</label>
+        <input type="number" id="pigeonCount">
+        <button id="createTournamentBtn">Create Tournament</button>
+      </fieldset>
 
-    <fieldset>
-      <legend>Page Heading</legend>
-      <input type="text" id="pageHeadingInput" placeholder="Enter page heading">
-      <button id="setPageHeadingBtn">Save Heading</button>
-      <button id="removePageHeadingBtn">Remove Heading</button>
-    </fieldset>
+      <fieldset>
+        <legend>Page Heading</legend>
+        <input type="text" id="pageHeadingInput" placeholder="Enter page heading">
+        <button id="setPageHeadingBtn">Save Heading</button>
+        <button id="removePageHeadingBtn">Remove Heading</button>
+      </fieldset>
 
-    <fieldset>
-      <legend>Top Banner Image</legend>
-      <input type="file" id="imageUpload" accept="image/*">
-      <button id="setImageBtn">Save Image</button>
-      <button id="removeImageBtn">Remove Image</button>
-    </fieldset>
+      <fieldset>
+        <legend>Top Banner Image</legend>
+        <input type="file" id="imageUpload" accept="image/*">
+        <button id="setImageBtn">Save Image</button>
+        <button id="removeImageBtn">Remove Image</button>
+      </fieldset>
 
-    <fieldset>
-      <legend>Sab Lofts Ka Uraan Ka Time</legend>
-      <input type="text" id="uraanKaTime" placeholder="HH:MM:SS">
-      <button id="applyUraanTimeBtn">Apply</button>
-    </fieldset>
+      <fieldset>
+        <legend>Sab Lofts Ka Uraan Ka Time</legend>
+        <input type="text" id="uraanKaTime" placeholder="HH:MM:SS">
+        <button id="applyUraanTimeBtn">Apply</button>
+      </fieldset>
 
-    <fieldset>
-      <legend>Add New Loft</legend>
-      <label for="rowName">Name:</label>
-      <input type="text" id="rowName">
-      <button id="addRowBtn">Add Row</button>
-    </fieldset>
+      <fieldset>
+        <legend>Add New Loft</legend>
+        <label for="rowName">Name:</label>
+        <input type="text" id="rowName">
+        <button id="addRowBtn">Add Row</button>
+      </fieldset>
 
-    <fieldset>
-      <legend>Save Pigeon Time</legend>
-      <label for="nameSelect">Name:</label>
-      <select id="nameSelect"></select>
+      <fieldset>
+        <legend>Save Pigeon Time</legend>
+        <label for="nameSelect">Name:</label>
+        <select id="nameSelect"></select>
 
-      <label for="pigeonNumber">Pigeon #:</label>
-      <select id="pigeonNumber"></select>
+        <label for="pigeonNumber">Pigeon #:</label>
+        <select id="pigeonNumber"></select>
 
-      <label for="timeInput">Pigeon Time (HH:MM:SS):</label>
-      <input type="text" id="timeInput" placeholder="HH:MM:SS">
-      <button id="saveBtn">Save Time</button>
-    </fieldset>
+        <label for="timeInput">Pigeon Time (HH:MM:SS):</label>
+        <input type="text" id="timeInput" placeholder="HH:MM:SS">
+        <button id="saveBtn">Save Time</button>
+      </fieldset>
 
-    <fieldset>
-      <legend>Set Uraan Ka Time for Individual Loft</legend>
-      <label for="uraanTimeByName">Uraan Ka Time (HH:MM:SS):</label>
-      <input type="text" id="uraanTimeByName">
-      <button id="applyUraanTimeByNameBtn">Apply for Selected Name</button>
-    </fieldset>
+      <!-- NEW FIELDSET for per-name Uraan Ka Time -->
+      <fieldset>
+        <legend>Set Uraan Ka Time for Individual Loft</legend>
+        <label for="uraanTimeByName">Uraan Ka Time (HH:MM:SS):</label>
+        <input type="text" id="uraanTimeByName">
+        <button id="applyUraanTimeByNameBtn">Apply for Selected Name</button>
+      </fieldset>
+    </div>
   </div>
 
   <script>
@@ -95,7 +98,7 @@
         const saved = localStorage.getItem("adminPassword");
         if (pass === saved) {
           document.getElementById("loginSection").style.display = "none";
-          document.getElementById("adminSection").style.display = "block";
+          document.getElementById("formSection").style.display = "block";
         } else {
           alert("Wrong password");
         }
