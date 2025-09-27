@@ -5,187 +5,188 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    h1 { text-align: center; margin-bottom: 20px; }
-    form { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input, select, button { margin-bottom: 10px; padding: 8px; width: 100%; max-width: 400px; }
-    button { cursor: pointer; background: #007BFF; color: white; border: none; border-radius: 5px; margin-right: 5px; }
-    button:hover { background: #0056b3; }
-    #loginSection { margin-bottom: 20px; }
-    #formSection { display: none; }
+    body { font-family: Arial, sans-serif; padding:20px; }
+    .hidden { display:none; }
+    label { display:block; margin-top:10px; }
+    input, select, button { margin:5px 0; padding:5px; }
   </style>
 </head>
 <body>
-  <h1>Admin Panel</h1>
-
   <!-- Login Section -->
   <div id="loginSection">
-    <h2>Set or Enter Password</h2>
-    <input type="password" id="adminPassword" placeholder="Enter password">
-    <button id="setPasswordBtn">Set Password</button>
+    <h2>Admin Login</h2>
+    <label for="adminPassword">Password:</label>
+    <input type="password" id="adminPassword">
     <button id="loginBtn">Login</button>
+    <button id="setPasswordBtn">Set Password</button>
   </div>
 
-  <!-- Form Section -->
-  <div id="formSection">
-    <!-- Tournament Setup -->
-    <form id="tournamentForm">
-      <label for="pigeonCount">Create Tournament (7, 8, or 11 pigeons):</label>
-      <select id="pigeonCount">
-        <option value="7">7 Pigeons</option>
-        <option value="8">8 Pigeons</option>
-        <option value="11">11 Pigeons</option>
-      </select>
-      <button type="button" id="createTournamentBtn">Create Tournament</button>
+  <!-- Admin Form Section -->
+  <div id="formSection" class="hidden">
+    <h2>Admin Panel</h2>
+
+    <h3>Set Tournament Config</h3>
+    <form id="configForm">
+      <label>Number of Pigeons:<input type="number" id="numPigeons"></label>
+      <button type="submit">Save Config</button>
     </form>
 
-    <!-- Page Heading -->
-    <form>
-      <label for="pageHeadingInput">Page Heading:</label>
-      <input type="text" id="pageHeadingInput" placeholder="Enter page heading">
-      <button type="button" id="setPageHeadingBtn">Set Heading</button>
-      <button type="button" id="removePageHeadingBtn" style="background:red;">Remove Heading</button>
-    </form>
+    <h3>Set Page Heading</h3>
+    <input type="text" id="pageHeadingInput" placeholder="Enter page heading">
+    <button id="saveHeadingBtn">Save Heading</button>
 
-    <!-- Top Image -->
-    <form>
-      <label for="imageUpload">Top Image:</label>
-      <input type="file" id="imageUpload" accept="image/*">
-      <button type="button" id="setImageBtn">Set Image</button>
-      <button type="button" id="removeImageBtn" style="background:red;">Remove Image</button>
-    </form>
+    <h3>Upload Top Image</h3>
+    <input type="file" id="topImageInput" accept="image/*">
+    <button id="saveImageBtn">Save Image</button>
 
-    <!-- Global Uraan Ka Time -->
-    <form>
-      <label for="uraanTime">Sab Lofts Ka Uraan Ka Time:</label>
-      <input type="text" id="uraanTime" placeholder="HHMMSS">
-      <button type="button" id="applyUraanTimeBtn">Apply</button>
-    </form>
+    <h3>Set Sab Lofts Ka Uraan Ka Time</h3>
+    <input type="text" id="uraanKaTimeInput" placeholder="HHMMSS">
+    <button id="setUraanTimeBtn">Apply</button>
 
-    <!-- Add Row (Name Only) -->
+    <h3>Time Registration</h3>
+    <label for="nameSelect">Name:</label>
+    <select id="nameSelect"></select>
+
+    <label for="uraanTimeByName">Uraan Ka Time:</label>
+    <input type="text" id="uraanTimeByName" placeholder="HHMMSS">
+    <button type="button" id="applyUraanTimeByNameBtn">Apply Uraan Time</button>
+
+    <label for="pigeonTime">Pigeon Time:</label>
+    <input type="text" id="pigeonTime" placeholder="HHMMSS">
+    <button id="saveTimeBtn">Save Time</button>
+
+    <h3>Add Row</h3>
     <form id="addRowForm">
-      <label for="rowName">Name:</label>
-      <input type="text" id="rowName" placeholder="Enter name">
-      <button type="button" id="addRowBtn">Add Row</button>
-    </form>
-
-    <!-- Time Registration -->
-    <form id="dataForm">
-      <label for="nameSelect">Name:</label>
-      <select id="nameSelect"></select>
-
-      <label for="uraanTimeByName">Uraan Ka Time (optional):</label>
-      <input type="text" id="uraanTimeByName" placeholder="HHMMSS">
-      <button type="button" id="applyUraanTimeByNameBtn">Apply Uraan Time</button>
-
-      <label for="pigeonNumber">Pigeon Number:</label>
-      <input type="text" id="pigeonNumber" placeholder="Enter pigeon number">
-
-      <label for="timeInput">Time:</label>
-      <input type="text" id="timeInput" placeholder="HHMMSS">
-      <button type="button" id="submitDataBtn">Submit</button>
+      <label>Name:<input type="text" id="rowName"></label>
+      <button type="submit">Add Row</button>
     </form>
   </div>
 
   <script>
-    function autoFormatTime(input) {
-      input.addEventListener("input", () => {
-        let v = input.value.replace(/\D/g, "").slice(0,6);
-        let f = "";
-        if(v.length>0) f=v.slice(0,2);
-        if(v.length>=3) f+=":"+v.slice(2,4);
-        if(v.length>=5) f+=":"+v.slice(4,6);
-        input.value=f;
+    function autoFormatTime(input){
+      input.addEventListener("input", ()=>{
+        let v=input.value.replace(/\D/g,"").slice(0,6);
+        if(v.length>=4){ v=v.replace(/(\d{2})(\d{2})(\d{0,2})/,"$1:$2:$3"); }
+        else if(v.length>=2){ v=v.replace(/(\d{2})(\d{0,2})/,"$1:$2"); }
+        input.value=v;
       });
     }
 
-    function renderNameDropdown() {
-      const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-      const nameSelect = document.getElementById("nameSelect");
-      nameSelect.innerHTML = "";
-      rows.forEach(r => {
-        const opt = document.createElement("option");
-        opt.value = r.name;
-        opt.textContent = r.name;
-        nameSelect.appendChild(opt);
+    autoFormatTime(document.getElementById("uraanKaTimeInput"));
+    autoFormatTime(document.getElementById("pigeonTime"));
+    autoFormatTime(document.getElementById("uraanTimeByName"));
+
+    // Save tournament config
+    document.getElementById("configForm").addEventListener("submit", e=>{
+      e.preventDefault();
+      const num=document.getElementById("numPigeons").value;
+      localStorage.setItem("tournamentConfig", JSON.stringify({pigeons:num}));
+      alert("Config saved");
+    });
+
+    // Save heading
+    document.getElementById("saveHeadingBtn").addEventListener("click", ()=>{
+      const heading=document.getElementById("pageHeadingInput").value;
+      localStorage.setItem("pageHeading", heading);
+      alert("Heading saved");
+    });
+
+    // Save image
+    document.getElementById("saveImageBtn").addEventListener("click", ()=>{
+      const f=document.getElementById("topImageInput").files[0];
+      if(!f)return alert("No file");
+      const r=new FileReader();
+      r.onload=()=>{localStorage.setItem("topImage", r.result);alert("Image saved");};
+      r.readAsDataURL(f);
+    });
+
+    // Save global Uraan Ka Time
+    document.getElementById("setUraanTimeBtn").addEventListener("click", ()=>{
+      const t=document.getElementById("uraanKaTimeInput").value;
+      localStorage.setItem("uraanKaTime", t);
+      alert("Uraan Ka Time saved");
+    });
+
+    // Save time for pigeon
+    document.getElementById("saveTimeBtn").addEventListener("click", ()=>{
+      const name=document.getElementById("nameSelect").value;
+      const t=document.getElementById("pigeonTime").value;
+      let rows=JSON.parse(localStorage.getItem("tournamentRows"))||[];
+      const row=rows.find(r=>r.name===name);
+      if(row){
+        row.times=row.times||[];
+        row.times.push(t);
+      }
+      localStorage.setItem("tournamentRows", JSON.stringify(rows));
+      alert("Time saved");
+    });
+
+    // Save per-name Uraan Ka Time
+    document.getElementById("applyUraanTimeByNameBtn").addEventListener("click", ()=>{
+      const name=document.getElementById("nameSelect").value;
+      const t=document.getElementById("uraanTimeByName").value;
+      let rows=JSON.parse(localStorage.getItem("tournamentRows"))||[];
+      const row=rows.find(r=>r.name===name);
+      if(row){
+        row.uraanTimeByName=t;
+      }
+      localStorage.setItem("tournamentRows", JSON.stringify(rows));
+      alert("Uraan Ka Time saved for "+name);
+    });
+
+    // Add row
+    document.getElementById("addRowForm").addEventListener("submit", e=>{
+      e.preventDefault();
+      const name=document.getElementById("rowName").value;
+      let rows=JSON.parse(localStorage.getItem("tournamentRows"))||[];
+      rows.push({name:name,times:[]});
+      localStorage.setItem("tournamentRows", JSON.stringify(rows));
+      populateNames();
+      alert("Row added");
+    });
+
+    function populateNames(){
+      const sel=document.getElementById("nameSelect");
+      sel.innerHTML="";
+      let rows=JSON.parse(localStorage.getItem("tournamentRows"))||[];
+      rows.forEach(r=>{
+        const o=document.createElement("option");
+        o.value=r.name; o.textContent=r.name;
+        sel.appendChild(o);
       });
     }
+    document.addEventListener("DOMContentLoaded", populateNames);
 
+    // ✅ Secure login system
     document.addEventListener("DOMContentLoaded", () => {
-      autoFormatTime(document.getElementById("uraanTime"));
-      autoFormatTime(document.getElementById("timeInput"));
-      autoFormatTime(document.getElementById("uraanTimeByName"));
+      const savedPass = localStorage.getItem("adminPassword");
 
-      // Create tournament
-      document.getElementById("createTournamentBtn").addEventListener("click", () => {
-        const pigeons = parseInt(document.getElementById("pigeonCount").value);
-        localStorage.setItem("tournamentConfig", JSON.stringify({ pigeons }));
-        localStorage.setItem("tournamentRows", JSON.stringify([]));
-        alert(`New tournament created with ${pigeons} pigeons.`);
-        renderNameDropdown();
-      });
+      // If password already exists, hide "Set Password"
+      if (savedPass) {
+        document.getElementById("setPasswordBtn").style.display = "none";
+      }
 
-      // Add row
-      document.getElementById("addRowBtn").addEventListener("click", () => {
-        const name = document.getElementById("rowName").value.trim();
-        if (!name) return alert("Enter a name");
-        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        rows.push({ name, times: [] });
-        localStorage.setItem("tournamentRows", JSON.stringify(rows));
-        renderNameDropdown();
-      });
-
-      // Apply Uraan Time by Name
-      document.getElementById("applyUraanTimeByNameBtn").addEventListener("click", () => {
-        const selectedName = document.getElementById("nameSelect").value;
-        const uraanTime = document.getElementById("uraanTimeByName").value;
-        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        const row = rows.find(r => r.name === selectedName);
-        if (row) {
-          row.uraanTimeByName = uraanTime;
-          localStorage.setItem("tournamentRows", JSON.stringify(rows));
-          alert(`Uraan time set for ${selectedName}`);
-        }
-      });
-
-      // Submit pigeon time
-      document.getElementById("submitDataBtn").addEventListener("click", () => {
-        const selectedName = document.getElementById("nameSelect").value;
-        const pigeonNum = parseInt(document.getElementById("pigeonNumber").value);
-        const time = document.getElementById("timeInput").value;
-        if (!selectedName || !pigeonNum || !time) return alert("Fill all fields");
-
-        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        const row = rows.find(r => r.name === selectedName);
-        if (row) {
-          row.times = row.times || [];
-          row.times[pigeonNum-1] = time;
-          localStorage.setItem("tournamentRows", JSON.stringify(rows));
-          alert(`Time saved for ${selectedName}, pigeon ${pigeonNum}`);
-        }
-      });
-
-      // Password
       document.getElementById("setPasswordBtn").addEventListener("click", () => {
         const pass = document.getElementById("adminPassword").value;
         if (!pass) return alert("Enter a password");
+        if (savedPass) {
+          alert("Password is already set. You cannot overwrite it here.");
+          return;
+        }
         localStorage.setItem("adminPassword", pass);
-        alert("Password set");
+        alert("Password set successfully. Please login now.");
       });
 
       document.getElementById("loginBtn").addEventListener("click", () => {
         const pass = document.getElementById("adminPassword").value;
-        const savedPass = localStorage.getItem("adminPassword");
-        if (pass === savedPass) {
+        const saved = localStorage.getItem("adminPassword");
+        if (pass === saved) {
           document.getElementById("loginSection").style.display = "none";
           document.getElementById("formSection").style.display = "block";
         } else {
           alert("Wrong password");
         }
       });
-
-      renderNameDropdown();
     });
   </script>
 </body>
