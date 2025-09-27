@@ -3,105 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Current Tournament</title>
+  <title>Tournament Results</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    #topImageContainer { width:100%; height:20vh; overflow:hidden; margin-bottom:10px; }
-    #topImageContainer img { width:100%; height:100%; object-fit:cover; }
-    h1 { background:lightblue; text-align:center; font-size:2rem; padding:10px; margin-bottom:20px; position:relative; }
-    #prevBtn { position:absolute; right:10px; top:10px; }
-    table { border-collapse:collapse; width:100%; table-layout:fixed; }
-    th,td { border:1px solid #ddd; padding:8px; text-align:center; }
-    th { background:lightcoral; color:white; }
-    tbody tr:nth-child(even){ background:#f0f8ff; }
-    .blink { animation: blink-animation 1s infinite alternate; background-color: lightgreen; }
-    @keyframes blink-animation { from { background-color: lightgreen; } to { background-color: transparent; } }
-    .stats { display:flex; justify-content:space-between; margin-bottom:15px; }
-    small { color: gray; font-size: 0.8em; }
+    body { font-family: Calibri, Arial, sans-serif; margin: 20px; }
+    h1 { text-align: center; margin-bottom: 10px; }
+    .banner { display: block; margin: 0 auto 20px auto; max-width: 100%; height: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-family: Calibri, Arial, sans-serif; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #f4f4f4; }
+    .name-cell { text-align: left; font-weight: bold; }
+    .uraan-cell { font-size: 0.85em; color: #555; }
   </style>
 </head>
 <body>
-  <div id="topImageContainer"></div>
-  <h1 id="pageHeading">Tournament
-    <a href="previous.html"><button id="prevBtn">Previous Tournaments</button></a>
-  </h1>
+  <h1 id="pageHeading"></h1>
+  <img id="topImage" class="banner" style="display:none;" />
 
-  <div class="stats">
-    <div><strong>First Pigeon Landed:</strong> <span id="firstPigeonLanded">N/A</span></div>
-    <div><strong>Last Pigeon Landed:</strong> <span id="lastPigeonLanded">N/A</span></div>
-    <div><strong>Total Number of Pigeons:</strong> <span id="totalPigeons">0</span></div>
-    <div><strong>Sab Lofts Ka Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span></div>
-  </div>
+  <p><strong>Sab Lofts Ka Uraan Ka Time:</strong> <span id="globalUraanTime">--:--:--</span></p>
 
-  <table id="mainTable"><thead></thead><tbody></tbody></table>
+  <table id="resultsTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Pigeon #</th>
+        <th>Time</th>
+        <th>Difference</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-    function parseTime(t){if(!t)return null;const [h,m,s]=t.split(":").map(Number);return h*3600+m*60+s;}
-    function fmt(sec){if(sec<=0)return"";const h=String(Math.floor(sec/3600)).padStart(2,"0");const m=String(Math.floor((sec%3600)/60)).padStart(2,"0");const s=String(sec%60).padStart(2,"0");return `${h}:${m}:${s}`;}
+    function calculateDifference(start, end) {
+      const [sh, sm, ss] = start.split(":").map(Number);
+      const [eh, em, es] = end.split(":").map(Number);
+      const startSec = sh*3600 + sm*60 + ss;
+      const endSec = eh*3600 + em*60 + es;
+      return endSec - startSec;
+    }
 
-    function renderTable(){
-      const config=JSON.parse(localStorage.getItem("tournamentConfig"));
-      const rows=JSON.parse(localStorage.getItem("tournamentRows"))||[];
-      const globalUraan=localStorage.getItem("uraanKaTime")||"00:00:00";
-      const heading=localStorage.getItem("pageHeading")||"Tournament";
-      const image=localStorage.getItem("topImage");
+    function formatTimeDiff(seconds) {
+      if (isNaN(seconds)) return "";
+      const h = Math.floor(seconds/3600).toString().padStart(2,"0");
+      const m = Math.floor((seconds%3600)/60).toString().padStart(2,"0");
+      const s = (seconds%60).toString().padStart(2,"0");
+      return `${h}:${m}:${s}`;
+    }
 
-      document.getElementById("pageHeading").childNodes[0].textContent=heading+" ";
-      document.getElementById("uraanKaTimeDisplay").textContent=globalUraan;
+    function renderTable() {
+      const heading = localStorage.getItem("pageHeading") || "Tournament Results";
+      document.getElementById("pageHeading").textContent = heading;
 
-      // ✅ Restore banner image rendering
-      if (image) {
-        document.getElementById("topImageContainer").innerHTML =
-          `<img src="${image}" alt="Top Image">`;
-      } else {
-        document.getElementById("topImageContainer").innerHTML = "";
+      const img = localStorage.getItem("topImage");
+      if (img) {
+        document.getElementById("topImage").src = img;
+        document.getElementById("topImage").style.display = "block";
       }
 
-      const head=document.querySelector("#mainTable thead");
-      const body=document.querySelector("#mainTable tbody");
-      head.innerHTML=""; body.innerHTML="";
-      if(!config)return;
+      const globalUraan = localStorage.getItem("uraanKaTime") || "--:--:--";
+      document.getElementById("globalUraanTime").textContent = globalUraan;
 
-      let thRow="<tr><th>#</th><th>Name</th>";
-      for(let i=1;i<=config.pigeons;i++) thRow+=`<th>${i}</th>`;
-      thRow+="<th>Total</th></tr>";
-      head.innerHTML=thRow;
+      const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
+      const tbody = document.querySelector("#resultsTable tbody");
+      tbody.innerHTML = "";
 
-      let allTimes=[];
-      rows.forEach(r=>{ if(r.times) r.times.forEach(t=>{ if(t) allTimes.push(t); }); });
-      let latestTime=null;
-      if(allTimes.length>0){
-        allTimes.sort();
-        document.getElementById("firstPigeonLanded").textContent=allTimes[0];
-        document.getElementById("lastPigeonLanded").textContent=allTimes[allTimes.length-1];
-        latestTime=allTimes[allTimes.length-1];
-      } else {
-        document.getElementById("firstPigeonLanded").textContent="N/A";
-        document.getElementById("lastPigeonLanded").textContent="N/A";
-      }
-      document.getElementById("totalPigeons").textContent=rows.length*(config?config.pigeons:0);
+      rows.forEach(r => {
+        const uraanRef = r.uraanTimeByName || globalUraan;
 
-      rows.forEach((r,idx)=>{
-        const uraanForRow = r.uraanTimeByName && r.uraanTimeByName!==globalUraan ? r.uraanTimeByName : globalUraan;
-        let nameCell = r.name;
-        if(r.uraanTimeByName && r.uraanTimeByName!==globalUraan){
-          nameCell += `<br><small>(Uraan: ${r.uraanTimeByName})</small>`;
-        }
+        let total = 0;
+        r.times.forEach((time, idx) => {
+          const tr = document.createElement("tr");
 
-        let row=`<tr><td>${idx+1}</td><td>${nameCell}</td>`;
-        let total=0;
-        if(r.times){
-          r.times.forEach(t=>{
-            if(t){
-              const diff=parseTime(t)-parseTime(uraanForRow);
-              total+=diff;
-              row+=`<td class="${t===latestTime ? "blink" : ""}">${t}</td>`;
-            } else {
-              row+=`<td></td>`;
+          if (idx === 0) {
+            const nameTd = document.createElement("td");
+            nameTd.className = "name-cell";
+            nameTd.rowSpan = r.times.length;
+            nameTd.innerHTML = r.name;
+
+            // If custom uraan time exists, show it under the name
+            if (r.uraanTimeByName) {
+              const small = document.createElement("div");
+              small.className = "uraan-cell";
+              small.textContent = `(Uraan: ${r.uraanTimeByName})`;
+              nameTd.appendChild(small);
             }
-          });
-        }
-        row+=`<td>${fmt(total)}</td></tr>`;
-        body.innerHTML+=row;
+
+            tr.appendChild(nameTd);
+          }
+
+          const pigeonTd = document.createElement("td");
+          pigeonTd.textContent = `Pigeon ${idx+1}`;
+          tr.appendChild(pigeonTd);
+
+          const timeTd = document.createElement("td");
+          timeTd.textContent = time || "";
+          tr.appendChild(timeTd);
+
+          const diffTd = document.createElement("td");
+          if (time) {
+            const diff = calculateDifference(uraanRef, time);
+            diffTd.textContent = formatTimeDiff(diff);
+            total += diff;
+          } else {
+            diffTd.textContent = "";
+          }
+          tr.appendChild(diffTd);
+
+          if (idx === 0) {
+            const totalTd = document.createElement("td");
+            totalTd.rowSpan = r.times.length;
+            totalTd.textContent = formatTimeDiff(total);
+            tr.appendChild(totalTd);
+          }
+
+          tbody.appendChild(tr);
+        });
       });
     }
 
