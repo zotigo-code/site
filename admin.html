@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel</title>
-  <link rel="stylesheet" href="style.css">
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     h1 { text-align: center; margin-bottom: 20px; }
@@ -15,9 +14,6 @@
     button:hover { background: #0056b3; }
     #loginSection { margin-bottom: 20px; }
     #formSection { display: none; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background: #f4f4f4; }
   </style>
 </head>
 <body>
@@ -33,7 +29,6 @@
 
   <!-- Form Section -->
   <div id="formSection">
-
     <!-- Tournament Setup -->
     <form id="tournamentForm">
       <label for="pigeonCount">Create Tournament (7, 8, or 11 pigeons):</label>
@@ -80,7 +75,7 @@
       <label for="nameSelect">Name:</label>
       <select id="nameSelect"></select>
 
-      <label for="uraanTimeByName">Uraan Ka Time:</label>
+      <label for="uraanTimeByName">Uraan Ka Time (optional):</label>
       <input type="text" id="uraanTimeByName" placeholder="HHMMSS">
       <button type="button" id="applyUraanTimeByNameBtn">Apply Uraan Time</button>
 
@@ -91,15 +86,6 @@
       <input type="text" id="timeInput" placeholder="HHMMSS">
       <button type="button" id="submitDataBtn">Submit</button>
     </form>
-
-    <!-- Table -->
-    <table id="tournamentTable">
-      <thead>
-        <tr id="tableHeader"></tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-
   </div>
 
   <script>
@@ -114,22 +100,6 @@
       });
     }
 
-    function archiveCurrentTournament() {
-      const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-      const config = JSON.parse(localStorage.getItem("tournamentConfig"));
-      if (!config) return;
-      const archive = JSON.parse(localStorage.getItem("tableHistory")) || [];
-      archive.push({
-        id: "tournament_" + Date.now(),
-        heading: localStorage.getItem("pageHeading") || "Tournament",
-        image: localStorage.getItem("topImage") || null,
-        uraanKaTime: localStorage.getItem("uraanKaTime") || "00:00:00",
-        pigeons: config.pigeons,
-        rows: rows
-      });
-      localStorage.setItem("tableHistory", JSON.stringify(archive));
-    }
-
     function renderNameDropdown() {
       const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
       const nameSelect = document.getElementById("nameSelect");
@@ -142,49 +112,18 @@
       });
     }
 
-    function renderTable() {
-      const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-      const config = JSON.parse(localStorage.getItem("tournamentConfig"));
-      if (!config) return;
-
-      const headerRow = document.getElementById("tableHeader");
-      const body = document.getElementById("tableBody");
-      headerRow.innerHTML = "<th>Name</th><th>Uraan Ka Time</th>";
-
-      for (let i=1; i<=config.pigeons; i++) {
-        headerRow.innerHTML += `<th>Pigeon ${i}</th>`;
-      }
-      headerRow.innerHTML += "<th>Total</th>";
-
-      body.innerHTML = "";
-      rows.forEach(r => {
-        let tr = document.createElement("tr");
-        let total = 0;
-        tr.innerHTML = `<td>${r.name}</td><td>${r.uraanTimeByName || "-"}</td>`;
-        for (let i=1; i<=config.pigeons; i++) {
-          const t = r[`pigeon${i}`] || "-";
-          tr.innerHTML += `<td>${t}</td>`;
-          if (t !== "-") total++;
-        }
-        tr.innerHTML += `<td>${total}</td>`;
-        body.appendChild(tr);
-      });
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
       autoFormatTime(document.getElementById("uraanTime"));
       autoFormatTime(document.getElementById("timeInput"));
       autoFormatTime(document.getElementById("uraanTimeByName"));
 
-      // Tournament create
+      // Create tournament
       document.getElementById("createTournamentBtn").addEventListener("click", () => {
-        archiveCurrentTournament();
         const pigeons = parseInt(document.getElementById("pigeonCount").value);
         localStorage.setItem("tournamentConfig", JSON.stringify({ pigeons }));
         localStorage.setItem("tournamentRows", JSON.stringify([]));
         alert(`New tournament created with ${pigeons} pigeons.`);
         renderNameDropdown();
-        renderTable();
       });
 
       // Add row
@@ -192,43 +131,42 @@
         const name = document.getElementById("rowName").value.trim();
         if (!name) return alert("Enter a name");
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        rows.push({ name });
+        rows.push({ name, times: [] });
         localStorage.setItem("tournamentRows", JSON.stringify(rows));
         renderNameDropdown();
-        renderTable();
       });
 
       // Apply Uraan Time by Name
       document.getElementById("applyUraanTimeByNameBtn").addEventListener("click", () => {
         const selectedName = document.getElementById("nameSelect").value;
         const uraanTime = document.getElementById("uraanTimeByName").value;
-        if (!selectedName) return alert("Select a name");
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
         const row = rows.find(r => r.name === selectedName);
         if (row) {
           row.uraanTimeByName = uraanTime;
           localStorage.setItem("tournamentRows", JSON.stringify(rows));
-          renderTable();
+          alert(`Uraan time set for ${selectedName}`);
         }
       });
 
       // Submit pigeon time
       document.getElementById("submitDataBtn").addEventListener("click", () => {
         const selectedName = document.getElementById("nameSelect").value;
-        const pigeonNum = document.getElementById("pigeonNumber").value;
+        const pigeonNum = parseInt(document.getElementById("pigeonNumber").value);
         const time = document.getElementById("timeInput").value;
         if (!selectedName || !pigeonNum || !time) return alert("Fill all fields");
 
         const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
         const row = rows.find(r => r.name === selectedName);
         if (row) {
-          row[`pigeon${pigeonNum}`] = time;
+          row.times = row.times || [];
+          row.times[pigeonNum-1] = time;
           localStorage.setItem("tournamentRows", JSON.stringify(rows));
-          renderTable();
+          alert(`Time saved for ${selectedName}, pigeon ${pigeonNum}`);
         }
       });
 
-      // Password: set and login
+      // Password
       document.getElementById("setPasswordBtn").addEventListener("click", () => {
         const pass = document.getElementById("adminPassword").value;
         if (!pass) return alert("Enter a password");
@@ -247,9 +185,7 @@
         }
       });
 
-      // Initial render
       renderNameDropdown();
-      renderTable();
     });
   </script>
 </body>
