@@ -6,10 +6,10 @@
   <title>Tournament Results</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: Calibri, Arial, sans-serif; margin: 20px; }
+    body { font-family: Arial, sans-serif; margin: 20px; }
     h1 { text-align: center; margin-bottom: 10px; }
     .banner { display: block; margin: 0 auto 20px auto; max-width: 100%; height: auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-family: Calibri, Arial, sans-serif; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #f4f4f4; }
     .name-cell { text-align: left; font-weight: bold; }
@@ -66,6 +66,7 @@
       document.getElementById("globalUraanTime").textContent = globalUraan;
 
       const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
+      const config = JSON.parse(localStorage.getItem("tournamentConfig"));
       const tbody = document.querySelector("#resultsTable tbody");
       tbody.innerHTML = "";
 
