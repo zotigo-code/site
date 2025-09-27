@@ -249,6 +249,12 @@
 
       // Initial load
       renderNameDropdown();
+
+      // 🔒 Hide Set Password if already set
+      const storedPwd = localStorage.getItem("adminPassword");
+      if (storedPwd) {
+        document.getElementById("setPasswordBtn").style.display = "none";
+      }
     });
 
     // Secure Login
@@ -260,6 +266,7 @@
       if (!pwd) return alert("Enter password");
       localStorage.setItem("adminPassword", pwd);
       alert("Password set. Please login.");
+      document.getElementById("setPasswordBtn").style.display = "none"; // ✅ hide after set
     });
 
     document.getElementById("loginBtn").addEventListener("click", () => {
