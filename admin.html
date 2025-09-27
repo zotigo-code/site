@@ -7,8 +7,8 @@
   <style>
     body { font-family: Arial, sans-serif; margin:20px; }
     h1 { margin-bottom:10px; }
-    .section { border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:8px; }
-    .section h2 { margin-top:0; }
+    fieldset { border:1px solid #aaa; padding:15px; margin-bottom:20px; border-radius:8px; }
+    legend { font-weight:bold; }
     label { display:block; margin-top:10px; }
     input, select, button { margin-top:5px; padding:5px; }
     .hidden { display:none; }
@@ -16,7 +16,7 @@
 </head>
 <body>
   <!-- Login Section -->
-  <div id="loginSection" class="section">
+  <div id="loginSection">
     <h1>Admin Login</h1>
     <label for="adminPassword">Password:</label>
     <input type="password" id="adminPassword">
@@ -29,43 +29,43 @@
   <div id="formSection" class="hidden">
     <h1>Admin Panel</h1>
 
-    <div class="section">
-      <h2>Create Tournament</h2>
+    <fieldset>
+      <legend>Create Tournament</legend>
       <label>Number of Pigeons:<input type="number" id="pigeonCount"></label>
       <button id="createTournamentBtn">Create Tournament</button>
-    </div>
+    </fieldset>
 
-    <div class="section">
-      <h2>Page Heading</h2>
+    <fieldset>
+      <legend>Page Heading</legend>
       <input type="text" id="pageHeadingInput" placeholder="Enter page heading">
       <br>
       <button id="setPageHeadingBtn">Save Heading</button>
       <button id="removePageHeadingBtn">Remove Heading</button>
-    </div>
+    </fieldset>
 
-    <div class="section">
-      <h2>Top Banner Image</h2>
+    <fieldset>
+      <legend>Top Banner Image</legend>
       <input type="file" id="imageUpload" accept="image/*">
       <br>
       <button id="setImageBtn">Save Image</button>
       <button id="removeImageBtn">Remove Image</button>
-    </div>
+    </fieldset>
 
-    <div class="section">
-      <h2>Sab Lofts Ka Uraan Ka Time</h2>
+    <fieldset>
+      <legend>Sab Lofts Ka Uraan Ka Time</legend>
       <input type="text" id="uraanKaTime" placeholder="HH:MM:SS">
       <br>
       <button id="applyUraanTimeBtn">Apply</button>
-    </div>
+    </fieldset>
 
-    <div class="section">
-      <h2>Add New Loft</h2>
+    <fieldset>
+      <legend>Add New Loft</legend>
       <label>Name:<input type="text" id="rowName"></label>
       <button id="addRowBtn">Add Row</button>
-    </div>
+    </fieldset>
 
-    <div class="section">
-      <h2>Save Pigeon Time</h2>
+    <fieldset>
+      <legend>Save Pigeon Time</legend>
       <label for="nameSelect">Name:</label>
       <select id="nameSelect"></select>
 
@@ -76,15 +76,15 @@
       <input type="text" id="timeInput" placeholder="HH:MM:SS">
       <br>
       <button id="saveBtn">Save Time</button>
-    </div>
+    </fieldset>
 
-    <div class="section">
-      <h2>Set Uraan Ka Time for Individual Loft</h2>
+    <fieldset>
+      <legend>Set Uraan Ka Time for Individual Loft</legend>
       <label for="uraanTimeByName">Uraan Ka Time (HH:MM:SS):</label>
       <input type="text" id="uraanTimeByName">
       <br>
-      <button id="applyUraanTimeByNameBtn">Apply for Name</button>
-    </div>
+      <button id="applyUraanTimeByNameBtn">Apply for Selected Name</button>
+    </fieldset>
   </div>
 
   <script>
