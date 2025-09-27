@@ -48,6 +48,14 @@
       document.getElementById("pageHeading").childNodes[0].textContent=heading+" ";
       document.getElementById("uraanKaTimeDisplay").textContent=globalUraan;
 
+      // ✅ Restore banner image rendering
+      if (image) {
+        document.getElementById("topImageContainer").innerHTML =
+          `<img src="${image}" alt="Top Image">`;
+      } else {
+        document.getElementById("topImageContainer").innerHTML = "";
+      }
+
       const head=document.querySelector("#mainTable thead");
       const body=document.querySelector("#mainTable tbody");
       head.innerHTML=""; body.innerHTML="";
