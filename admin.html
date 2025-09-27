@@ -228,6 +228,25 @@
         }
       });
 
+      // Password: set and login
+      document.getElementById("setPasswordBtn").addEventListener("click", () => {
+        const pass = document.getElementById("adminPassword").value;
+        if (!pass) return alert("Enter a password");
+        localStorage.setItem("adminPassword", pass);
+        alert("Password set");
+      });
+
+      document.getElementById("loginBtn").addEventListener("click", () => {
+        const pass = document.getElementById("adminPassword").value;
+        const savedPass = localStorage.getItem("adminPassword");
+        if (pass === savedPass) {
+          document.getElementById("loginSection").style.display = "none";
+          document.getElementById("formSection").style.display = "block";
+        } else {
+          alert("Wrong password");
+        }
+      });
+
       // Initial render
       renderNameDropdown();
       renderTable();
