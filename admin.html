@@ -1,309 +1,95 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    h1 { text-align: center; margin-bottom: 20px; }
-    form { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input, select, button { margin-bottom: 10px; padding: 8px; width: 100%; max-width: 400px; }
-    button { cursor: pointer; background: #007BFF; color: white; border: none; border-radius: 5px; margin-right: 5px; }
-    button:hover { background: #0056b3; }
-    #loginSection { margin-bottom: 20px; }
-    #formSection { display: none; }
-  </style>
+<meta name="description" content="Zscaler makes the internet safe for businesses by protecting their employees from malware, viruses, and other security threats.">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Internet Security by Zscaler</title>
+<script language="JavaScript">var defLang = 'en_US'</script>
+<style type="text/css">
+/* Your existing styles remain unchanged */
+body {
+    background-color:#e3e3e3;
+    font-family:Arial, sans-serif;
+    font-size:12px;
+    color:#4B4F54;
+}
+a {
+    cursor:pointer;
+    text-decoration:none;
+    color:#009dd0;
+}
+table {
+    margin-top:10px;
+}
+/* Add any additional styles here */
+</style>
 </head>
 <body>
-  <h1>Admin Panel</h1>
 
-  <!-- Login Section -->
-  <div id="loginSection">
-    <h2>Set or Enter Password</h2>
-    <input type="password" id="adminPassword" placeholder="Enter password">
-    <button id="setPasswordBtn">Set Password</button>
-    <button id="loginBtn">Login</button>
-  </div>
+<!-- Existing layout and content -->
+<div class="pg red">
+<div class="pg_cont">
+    <div id="logo_container" class="logo_container">
+        <table id="logo" width="50%" cellspacing="0" cellpadding="0" border="0" align="center">
+            <tbody>
+                <tr align="center">
+                    <td align="center" class="bh">
+                        <img src="https://login.zscaler.net:443/__zsig/HNDMDRMDFjkFN" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-  <!-- Form Section -->
-  <div id="formSection">
+    <table class="m_tbl" cellpadding="0" cellspacing="0" align="center">
+        <tbody>
+            <tr>
+                <td height="100" valign="top" style="position:relative;">
+                    <div class="uq_cd">D22</div>
+                    <!-- Existing content continues here -->
 
-    <!-- Tournament Setup -->
-    <form id="tournamentForm">
-      <label for="pigeonCount">Create Tournament (7, 8, or 11 pigeons):</label>
-      <select id="pigeonCount">
-        <option value="7">7 Pigeons</option>
-        <option value="8">8 Pigeons</option>
-        <option value="11">11 Pigeons</option>
-      </select>
-      <button type="button" id="createTournamentBtn">Create Tournament</button>
-    </form>
+                    <!-- New form for data submission -->
+                    <div style="margin-top: 20px; padding: 10px; background-color: #fff; border-radius: 5px;">
+                        <h3 style="text-align: center; color: #009dd0;">Submit Data to Google Sheet</h3>
+                        <form id="dataForm">
+                            <label for="data" style="display: block; margin-bottom: 5px;">Enter Data (comma-separated):</label>
+                            <input type="text" id="data" name="data" placeholder="e.g., Name, Age, Address" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <button type="submit" class="btn" style="margin-top: 10px;">Submit</button>
+                        </form>
+                        <p id="response" style="margin-top: 10px; color: green;"></p>
+                    </div>
 
-    <!-- Page Heading -->
-    <form>
-      <label for="pageHeadingInput">Page Heading:</label>
-      <input type="text" id="pageHeadingInput" placeholder="Enter page heading">
-      <button type="button" id="setPageHeadingBtn">Set Heading</button>
-      <button type="button" id="removePageHeadingBtn" style="background:red;">Remove Heading</button>
-    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</div>
 
-    <!-- Top Image -->
-    <form>
-      <label for="imageUpload">Top Image:</label>
-      <input type="file" id="imageUpload" accept="image/*">
-      <button type="button" id="setImageBtn">Set Image</button>
-      <button type="button" id="removeImageBtn" style="background:red;">Remove Image</button>
-    </form>
+<!-- JavaScript for Google Sheets integration -->
+<script>
+    const scriptURL = "YOUR_WEB_APP_URL"; // Replace with your Google Apps Script Web App URL
 
-    <!-- Global Uraan Ka Time -->
-    <form>
-      <label for="uraanTime">Sab Lofts Ka Uraan Ka Time:</label>
-      <input type="text" id="uraanTime" placeholder="HHMMSS">
-      <button type="button" id="applyUraanTimeBtn">Apply</button>
-    </form>
+    document.getElementById("dataForm").addEventListener("submit", async (e) => {
+        e.preventDefault(); // Prevent form from refreshing the page
 
-    <!-- Add Row (Name Only) -->
-    <form id="addRowForm">
-      <label for="rowName">Name:</label>
-      <input type="text" id="rowName" placeholder="Enter name">
-      <button type="button" id="addRowBtn">Add Row</button>
-    </form>
+        const data = document.getElementById("data").value.split(",").map(val => val.trim()); // Parse user input
 
-    <!-- Time Registration -->
-    <form id="dataForm">
-      <label for="nameSelect">Name:</label>
-      <select id="nameSelect"></select>
-
-      <label for="pigeonNumber">Pigeon Number:</label>
-      <select id="pigeonNumber"></select>
-
-      <label for="timeInput">Time (HH:MM:SS):</label>
-      <input type="text" id="timeInput" placeholder="HHMMSS">
-
-      <button type="button" id="saveBtn">Save</button>
-    </form>
-
-    <!-- NEW: Per-name Uraan Ka Time -->
-    <form id="uraanByNameForm">
-      <label for="uraanTimeByName">Set Uraan Ka Time for Selected Name:</label>
-      <input type="text" id="uraanTimeByName" placeholder="HHMMSS">
-      <button type="button" id="applyUraanTimeByNameBtn">Apply for Selected Name</button>
-    </form>
-
-  </div>
-
-  <script>
-    function autoFormatTime(input) {
-      input.addEventListener("input", () => {
-        let v = input.value.replace(/\D/g, "").slice(0,6);
-        let f = "";
-        if(v.length>0) f=v.slice(0,2);
-        if(v.length>=3) f+=":"+v.slice(2,4);
-        if(v.length>=5) f+=":"+v.slice(4,6);
-        input.value=f;
-      });
-    }
-
-    function archiveCurrentTournament() {
-      const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-      const config = JSON.parse(localStorage.getItem("tournamentConfig"));
-      if (!config) return;
-      const archive = JSON.parse(localStorage.getItem("tableHistory")) || [];
-      archive.push({
-        id: "tournament_" + Date.now(),
-        heading: localStorage.getItem("pageHeading") || "Tournament",
-        image: localStorage.getItem("topImage") || null,
-        uraanKaTime: localStorage.getItem("uraanKaTime") || "00:00:00",
-        pigeons: config.pigeons,
-        rows: rows
-      });
-      localStorage.setItem("tableHistory", JSON.stringify(archive));
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      autoFormatTime(document.getElementById("uraanTime"));
-      autoFormatTime(document.getElementById("timeInput"));
-      autoFormatTime(document.getElementById("uraanTimeByName"));
-
-      // Autofocus password input on load
-      document.getElementById("adminPassword").focus();
-
-      // Tournament create
-      document.getElementById("createTournamentBtn").addEventListener("click", () => {
-        archiveCurrentTournament();
-        const pigeons = parseInt(document.getElementById("pigeonCount").value);
-        localStorage.setItem("tournamentConfig", JSON.stringify({ pigeons }));
-        localStorage.setItem("tournamentRows", JSON.stringify([]));
-        alert(`New tournament created with ${pigeons} pigeons.`);
-        renderNameDropdown();
-      });
-
-      // Page heading
-      document.getElementById("setPageHeadingBtn").addEventListener("click", () => {
-        localStorage.setItem("pageHeading", document.getElementById("pageHeadingInput").value);
-        alert("Heading updated");
-      });
-      document.getElementById("removePageHeadingBtn").addEventListener("click", () => {
-        localStorage.removeItem("pageHeading");
-        alert("Heading removed");
-      });
-
-      // Image
-      document.getElementById("setImageBtn").addEventListener("click", () => {
-        const f = document.getElementById("imageUpload").files[0];
-        if (!f) return alert("No file selected");
-        const r = new FileReader();
-        r.onload = e => {
-          localStorage.setItem("topImage", e.target.result);
-          alert("Image updated");
-        };
-        r.readAsDataURL(f);
-      });
-      document.getElementById("removeImageBtn").addEventListener("click", () => {
-        localStorage.removeItem("topImage");
-        alert("Image removed");
-      });
-
-      // Uraan ka Time (global)
-      document.getElementById("applyUraanTimeBtn").addEventListener("click", () => {
-        localStorage.setItem("uraanKaTime", document.getElementById("uraanTime").value);
-        alert("Sab Lofts Ka Uraan Ka Time set");
-      });
-
-      // Add row (Name only)
-      document.getElementById("addRowBtn").addEventListener("click", () => {
-        const config = JSON.parse(localStorage.getItem("tournamentConfig"));
-        if (!config) return alert("No tournament created yet.");
-        const nameInput = document.getElementById("rowName");
-        const name = nameInput.value.trim();
-        if (!name) return alert("Please enter a name.");
-
-        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        rows.push({ name, times: Array(config.pigeons).fill("") });
-        localStorage.setItem("tournamentRows", JSON.stringify(rows));
-
-        alert("Row added");
-        nameInput.value = "";
-        renderNameDropdown();
-      });
-
-      // Populate name dropdown
-      function renderNameDropdown() {
-        const nameSelect = document.getElementById("nameSelect");
-        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        nameSelect.innerHTML = "";
-        rows.forEach((r, idx) => {
-          nameSelect.add(new Option(r.name, idx));
-        });
-        if (rows.length > 0) updatePigeonDropdown(0);
-      }
-
-      function updatePigeonDropdown(rowIndex) {
-        const config = JSON.parse(localStorage.getItem("tournamentConfig"));
-        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        const pigeonDropdown = document.getElementById("pigeonNumber");
-        pigeonDropdown.innerHTML = "";
-        if (!config || !rows[rowIndex]) return;
-        rows[rowIndex].times.forEach((t, i) => {
-          pigeonDropdown.add(new Option(t ? `Pigeon ${i+1} (Filled)` : `Pigeon ${i+1}`, i));
-        });
-      }
-
-      document.getElementById("nameSelect").addEventListener("change", (e) => {
-        updatePigeonDropdown(e.target.value);
-      });
-
-      // Save time
-      function saveTime() {
-        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        const rowIdx = document.getElementById("nameSelect").value;
-        const pigeonIdx = document.getElementById("pigeonNumber").value;
-        const timeInput = document.getElementById("timeInput");
-        const time = timeInput.value;
-
-        if (!/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(time))
-          return alert("Invalid format. Use HH:MM:SS");
-
-        rows[rowIdx].times[pigeonIdx] = time;
-        localStorage.setItem("tournamentRows", JSON.stringify(rows));
-
-        alert("Time saved!");
-        timeInput.value = "";
-        updatePigeonDropdown(rowIdx);
-      }
-
-      document.getElementById("saveBtn").addEventListener("click", saveTime);
-      document.getElementById("timeInput").addEventListener("keypress", e => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          saveTime();
+        try {
+            const response = await fetch(scriptURL, {
+                method: "POST",
+                body: JSON.stringify({ data }),
+                headers: { "Content-Type": "application/json" }
+            });
+            const result = await response.text();
+            document.getElementById("response").innerText = result; // Display success message
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("response").innerText = "Failed to submit data!";
         }
-      });
-
-      // Per-name Uraan Ka Time
-      function saveUraanByName() {
-        const rows = JSON.parse(localStorage.getItem("tournamentRows")) || [];
-        const rowIdx = document.getElementById("nameSelect").value;
-        const uraanTime = document.getElementById("uraanTimeByName").value;
-
-        if (!/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(uraanTime))
-          return alert("Invalid format. Use HH:MM:SS");
-
-        rows[rowIdx].uraanTimeByName = uraanTime;
-        localStorage.setItem("tournamentRows", JSON.stringify(rows));
-        alert("Uraan Ka Time saved for " + rows[rowIdx].name);
-        document.getElementById("uraanTimeByName").value = "";
-      }
-
-      document.getElementById("applyUraanTimeByNameBtn").addEventListener("click", saveUraanByName);
-      document.getElementById("uraanTimeByName").addEventListener("keypress", e => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          saveUraanByName();
-        }
-      });
-
-      // Initial load
-      renderNameDropdown();
-
-      // 🔒 Hide Set Password if already set
-      const storedPwd = localStorage.getItem("adminPassword");
-      if (storedPwd) {
-        document.getElementById("setPasswordBtn").style.display = "none";
-      }
     });
+</script>
 
-    // Secure Login
-    document.getElementById("setPasswordBtn").addEventListener("click", () => {
-      if (localStorage.getItem("adminPassword")) {
-        return alert("Password already set. Use Login.");
-      }
-      const pwd=document.getElementById("adminPassword").value;
-      if (!pwd) return alert("Enter password");
-      localStorage.setItem("adminPassword", pwd);
-      alert("Password set. Please login.");
-      document.getElementById("setPasswordBtn").style.display = "none";
-    });
-
-    function login() {
-      const entered=document.getElementById("adminPassword").value;
-      const stored=localStorage.getItem("adminPassword");
-      if (entered===stored) {
-        document.getElementById("loginSection").style.display="none";
-        document.getElementById("formSection").style.display="block";
-      } else alert("Incorrect password");
-    }
-
-    document.getElementById("loginBtn").addEventListener("click", login);
-    document.getElementById("adminPassword").addEventListener("keypress", e => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        login();
-      }
-    });
-  </script>
 </body>
 </html>
