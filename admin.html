@@ -1,95 +1,44 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta name="description" content="Zscaler makes the internet safe for businesses by protecting their employees from malware, viruses, and other security threats.">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Internet Security by Zscaler</title>
-<script language="JavaScript">var defLang = 'en_US'</script>
-<style type="text/css">
-/* Your existing styles remain unchanged */
-body {
-    background-color:#e3e3e3;
-    font-family:Arial, sans-serif;
-    font-size:12px;
-    color:#4B4F54;
-}
-a {
-    cursor:pointer;
-    text-decoration:none;
-    color:#009dd0;
-}
-table {
-    margin-top:10px;
-}
-/* Add any additional styles here */
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <h1>Admin Panel</h1>
 
-<!-- Existing layout and content -->
-<div class="pg red">
-<div class="pg_cont">
-    <div id="logo_container" class="logo_container">
-        <table id="logo" width="50%" cellspacing="0" cellpadding="0" border="0" align="center">
-            <tbody>
-                <tr align="center">
-                    <td align="center" class="bh">
-                        <img src="https://login.zscaler.net:443/__zsig/HNDMDRMDFjkFN" />
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <div id="loginSection">
+    <h2>Set or Enter Password</h2>
+    <input type="password" id="adminPassword" placeholder="Enter password">
+    <button id="setPasswordBtn">Set Password</button>
+    <button id="loginBtn">Login</button>
+  </div>
 
-    <table class="m_tbl" cellpadding="0" cellspacing="0" align="center">
-        <tbody>
-            <tr>
-                <td height="100" valign="top" style="position:relative;">
-                    <div class="uq_cd">D22</div>
-                    <!-- Existing content continues here -->
+  <div id="formSection" style="display: none;">
+    <form id="dataForm">
+      <label for="loftSelect">Loft:</label>
+      <select id="loftSelect">
+        <!-- Dropdown is populated dynamically -->
+      </select>
+      
+      <label for="pigeonNumber">Pigeon Number:</label>
+      <input type="number" id="pigeonNumber" readonly>
 
-                    <!-- New form for data submission -->
-                    <div style="margin-top: 20px; padding: 10px; background-color: #fff; border-radius: 5px;">
-                        <h3 style="text-align: center; color: #009dd0;">Submit Data to Google Sheet</h3>
-                        <form id="dataForm">
-                            <label for="data" style="display: block; margin-bottom: 5px;">Enter Data (comma-separated):</label>
-                            <input type="text" id="data" name="data" placeholder="e.g., Name, Age, Address" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                            <button type="submit" class="btn" style="margin-top: 10px;">Submit</button>
-                        </form>
-                        <p id="response" style="margin-top: 10px; color: green;"></p>
-                    </div>
+      <label for="timeInput">Time (HH:MM:SS):</label>
+      <input type="text" id="timeInput" placeholder="e.g., 12:34:56">
 
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-</div>
+      <button type="button" id="saveBtn">Save</button>
+    </form>
 
-<!-- JavaScript for Google Sheets integration -->
-<script>
-    const scriptURL = "YOUR_WEB_APP_URL"; // Replace with your Google Apps Script Web App URL
+    <form id="globalTimeForm">
+      <label for="uraanTime">Uraan Ka Time:</label>
+      <input type="text" id="uraanTime" placeholder="e.g., 12:34:56">
+      <button type="button" id="applyUraanTimeBtn">Apply</button>
+    </form>
+  </div>
 
-    document.getElementById("dataForm").addEventListener("submit", async (e) => {
-        e.preventDefault(); // Prevent form from refreshing the page
-
-        const data = document.getElementById("data").value.split(",").map(val => val.trim()); // Parse user input
-
-        try {
-            const response = await fetch(scriptURL, {
-                method: "POST",
-                body: JSON.stringify({ data }),
-                headers: { "Content-Type": "application/json" }
-            });
-            const result = await response.text();
-            document.getElementById("response").innerText = result; // Display success message
-        } catch (error) {
-            console.error("Error:", error);
-            document.getElementById("response").innerText = "Failed to submit data!";
-        }
-    });
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
