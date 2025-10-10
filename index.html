@@ -1,110 +1,143 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Current Tournament</title>
+  <title>Time Table</title>
   <style>
-    #topImageContainer { width:100%; height:20vh; overflow:hidden; margin-bottom:10px; }
-    #topImageContainer img { width:100%; height:100%; object-fit:cover; }
-    h1 { background:lightblue; text-align:center; font-size:2rem; padding:10px; margin-bottom:20px; position:relative; }
-    #prevBtn { position:absolute; right:10px; top:10px; }
-    table { border-collapse:collapse; width:100%; table-layout:fixed; }
-    th,td { border:1px solid #ddd; padding:8px; text-align:center; }
-    th { background:lightcoral; color:white; }
-    tbody tr:nth-child(even){ background:#f0f8ff; }
-
-    /* ✅ Blink effect */
-    .blink {
-      animation: blink-animation 1s infinite alternate;
-      background-color: lightgreen;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
     }
-    @keyframes blink-animation {
-      from { background-color: lightgreen; }
-      to { background-color: transparent; }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
     }
-
-    .stats { display:flex; justify-content:space-between; margin-bottom:15px; }
+    th {
+      background-color: #f4f4f4;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input {
+      margin: 5px;
+    }
   </style>
 </head>
 <body>
-  <div id="topImageContainer"></div>
-  <h1 id="pageHeading">Tournament 
-    <a href="previous.html"><button id="prevBtn">Previous Tournaments</button></a>
-  </h1>
+  <h1>Time Table</h1>
 
-  <div class="stats">
-    <div><strong>First Pigeon Landed:</strong> <span id="firstPigeonLanded">N/A</span></div>
-    <div><strong>Last Pigeon Landed:</strong> <span id="lastPigeonLanded">N/A</span></div>
-    <div><strong>Total Number of Pigeons:</strong> <span id="totalPigeons">0</span></div>
-    <div><strong>Sab Lofts Ka Uraan Ka Time:</strong> <span id="uraanKaTimeDisplay">00:00:00</span></div>
-  </div>
+  <!-- Form to enter data -->
+  <form id="dataForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" required>
+    <label for="time1">Time 1:</label>
+    <input type="time" id="time1" required>
+    <label for="time2">Time 2:</label>
+    <input type="time" id="time2" required>
+    <label for="time3">Time 3:</label>
+    <input type="time" id="time3" required>
+    <label for="time4">Time 4:</label>
+    <input type="time" id="time4" required>
+    <label for="time5">Time 5:</label>
+    <input type="time" id="time5" required>
+    <label for="time6">Time 6:</label>
+    <input type="time" id="time6" required>
+    <label for="time7">Time 7:</label>
+    <input type="time" id="time7" required>
+    <button type="submit">Add to Table</button>
+  </form>
 
-  <table id="mainTable"><thead></thead><tbody></tbody></table>
+  <!-- Table to display data -->
+  <table id="timeTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Time 1</th>
+        <th>Time 2</th>
+        <th>Time 3</th>
+        <th>Time 4</th>
+        <th>Time 5</th>
+        <th>Time 6</th>
+        <th>Time 7</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Rows will be dynamically added here -->
+    </tbody>
+  </table>
 
   <script>
-    function parseTime(t){if(!t)return null;const [h,m,s]=t.split(":").map(Number);return h*3600+m*60+s;}
-    function fmt(sec){if(sec<=0)return"";const h=String(Math.floor(sec/3600)).padStart(2,"0");const m=String(Math.floor((sec%3600)/60)).padStart(2,"0");const s=String(sec%60).padStart(2,"0");return `${h}:${m}:${s}`;}
+    // Universal start time as "05:00:00"
+    const universalStartTime = "05:00:00";
 
-    function renderTable(){
-      const config=JSON.parse(localStorage.getItem("tournamentConfig"));
-      const rows=JSON.parse(localStorage.getItem("tournamentRows"))||[];
-      const uraan=localStorage.getItem("uraanKaTime")||"00:00:00";
-      const heading=localStorage.getItem("pageHeading")||"Tournament";
-      const image=localStorage.getItem("topImage");
-
-      document.getElementById("pageHeading").childNodes[0].textContent=heading+" ";
-      document.getElementById("uraanKaTimeDisplay").textContent=uraan;
-
-      const head=document.querySelector("#mainTable thead");
-      const body=document.querySelector("#mainTable tbody");
-      head.innerHTML=""; body.innerHTML="";
-      if(!config)return;
-
-      let thRow="<tr><th>#</th><th>Name</th>";
-      for(let i=1;i<=config.pigeons;i++) thRow+=`<th>${i}</th>`;
-      thRow+="<th>Total</th></tr>";
-      head.innerHTML=thRow;
-
-      let allTimes=[];
-
-      rows.forEach(r=>{
-        r.times.forEach(t=>{ if(t) allTimes.push(t); });
-      });
-
-      let latestTime = null;
-      if(allTimes.length>0){
-        allTimes.sort();
-        document.getElementById("firstPigeonLanded").textContent=allTimes[0];
-        document.getElementById("lastPigeonLanded").textContent=allTimes[allTimes.length-1];
-        latestTime = allTimes[allTimes.length-1]; // ✅ track latest
-      } else {
-        document.getElementById("firstPigeonLanded").textContent="N/A";
-        document.getElementById("lastPigeonLanded").textContent="N/A";
-      }
-      document.getElementById("totalPigeons").textContent=rows.length * (config ? config.pigeons : 0);
-
-      rows.forEach((r,idx)=>{
-        let row=`<tr><td>${idx+1}</td><td>${r.name}</td>`;
-        let total=0;
-        r.times.forEach(t=>{
-          if(t){
-            const diff=parseTime(t)-parseTime(uraan);
-            total+=diff;
-            row+=`<td class="${t===latestTime ? "blink" : ""}">${t}</td>`;
-          } else {
-            row+=`<td></td>`;
-          }
-        });
-        row+=`<td>${fmt(total)}</td></tr>`;
-        body.innerHTML+=row;
-      });
-
-      if(image)document.getElementById("topImageContainer").innerHTML=`<img src="${image}">`;
+    // Convert time in "HH:mm:ss" format to seconds
+    function timeToSeconds(time) {
+      const [hours, minutes, seconds] = time.split(':').map(Number);
+      return hours * 3600 + minutes * 60 + (seconds || 0);
     }
 
-    document.addEventListener("DOMContentLoaded", renderTable);
-    window.addEventListener("storage", renderTable);
+    // Convert seconds to "HH:mm:ss" format
+    function secondsToTime(seconds) {
+      const hours = Math.floor(seconds / 3600).toString().padStart(2, '0');
+      const minutes = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+      const secs = (seconds % 60).toString().padStart(2, '0');
+      return `${hours}:${minutes}:${secs}`;
+    }
+
+    // Calculate time difference from universal start time
+    function calculateDifference(time) {
+      const universalSeconds = timeToSeconds(universalStartTime);
+      const enteredSeconds = timeToSeconds(time);
+      return enteredSeconds - universalSeconds;
+    }
+
+    // Add a row to the table
+    document.getElementById("dataForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      // Get form values
+      const name = document.getElementById("name").value;
+      const time1 = document.getElementById("time1").value + ":00";
+      const time2 = document.getElementById("time2").value + ":00";
+      const time3 = document.getElementById("time3").value + ":00";
+      const time4 = document.getElementById("time4").value + ":00";
+      const time5 = document.getElementById("time5").value + ":00";
+      const time6 = document.getElementById("time6").value + ":00";
+      const time7 = document.getElementById("time7").value + ":00";
+
+      // Calculate total time
+      const totalSeconds = [
+        calculateDifference(time1),
+        calculateDifference(time2),
+        calculateDifference(time3),
+        calculateDifference(time4),
+        calculateDifference(time5),
+        calculateDifference(time6),
+        calculateDifference(time7)
+      ].reduce((sum, diff) => sum + diff, 0);
+
+      const totalTime = secondsToTime(totalSeconds);
+
+      // Add row to the table
+      const table = document.getElementById("timeTable").getElementsByTagName("tbody")[0];
+      const newRow = table.insertRow();
+      newRow.innerHTML = `
+        <td>${name}</td>
+        <td>${time1}</td>
+        <td>${time2}</td>
+        <td>${time3}</td>
+        <td>${time4}</td>
+        <td>${time5}</td>
+        <td>${time6}</td>
+        <td>${time7}</td>
+        <td>${totalTime}</td>
+      `;
+
+      // Clear the form
+      document.getElementById("dataForm").reset();
+    });
   </script>
 </body>
 </html>
